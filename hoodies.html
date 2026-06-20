@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <title>Web bán hàng - Cotton USA</title>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <img src="images/logo.avif" alt="Cotton USA">
+        </div>
+        <ul class="MENU">
+            <li><a href="index.html">TRANG CHỦ</a></li>
+            <li class="has-submenu">
+                <a href="quan.html">QUẦN <span class="arrow">▼</span></a>
+                <ul class="sub-menu">
+                    <li><a href="quan.html?type=ong-suong">Quần Ống Suông</a></li>
+                    <li><a href="quan.html?type=jogger">Quần Jogger</a></li>
+                </ul>
+            </li>
+            <li class="has-submenu">
+                <a href="sweater.html">SWEATERS <span class="arrow">▼</span></a>
+                <ul class="sub-menu">
+                <li><a href="sweater.html?id=US001">University Sweater</a></li>
+                <li><a href="sweater.html?id=CS001">Car Sweater</a></li>
+                <li><a href="sweater.html?id=FS001">Floral Sweater</a></li>
+            </ul>
+            </li>
+            <li class="has-submenu">
+                <a href="hoodies.html">HOODIES <span class="arrow">▼</span></a>
+                <ul class="sub-menu">
+                    <li><a href="hoodies.html?id=BH001">Basic Hoodie</a></li>
+                    <li><a href="hoodies.html?id=PH001">Porsche Hoodie</a></li>
+                    <li><a href="hoodies.html?id=USAH001">USA Hoodie</a></li>
+                </ul>
+            </li>
+            <li class="has-submenu">
+                <a href="aothun.html">ÁO THUN <span class="arrow">▼</span></a>
+                <ul class="sub-menu">
+                    <li><a href="aothun.html">Áo Thun ngắn tay <span class="arrow">▼</span></a>
+                        <ul class="sub-menu">
+                            <li><a href="aothun.html?id=W001">Áo Thun Watch</a></li>
+                            <li><a href="aothun.html?id=POR001">Áo Thun Poscher</a></li>
+                            <li><a href="aothun.html?id=USA001">Áo Thun USA</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="aothundaitay.html">Áo Thun dài tay <span class="arrow">▼</span></a>
+                        <ul class="sub-menu"><li>
+                            <a href="aothundaitay.html?id=RP001">Áo Thun Dài Tay Rapper</a></li>
+                            <li><a href="aothundaitay.html?id=POR001">Áo Thun Dài Tay Poscher</a></li>
+                            <li><a href="aothundaitay.html?id=USA001">Áo Thun Dài Tay USA</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+        <div class="other">
+            <div class="search-icon">
+                <input type="text" id="searchInput" placeholder="Tìm kiếm sản phẩm...">
+                <i class="fas fa-search"></i>
+            </div>
+            <div class="cart-wrapper">
+                <button class="cart-icon-btn" id="cartBtn"><i class="fas fa-shopping-bag"></i><span class="cart-badge" id="cartBadge">0</span></button>
+                <div class="cart-dropdown" id="cartDropdown">
+                    <div class="cart-dropdown-header"><span>Giỏ hàng</span><span id="cartItemCount">0 sản phẩm</span></div>
+                    <div class="cart-items-list" id="cartItemsList"><div class="cart-empty-msg"><i class="fas fa-shopping-bag"></i>Giỏ hàng trống</div></div>
+                    <div class="cart-dropdown-footer" id="cartFooter" style="display:none">
+                        <div class="cart-total-row"><span>Tổng cộng:</span><span class="cart-total-amount" id="cartTotal">0₫</span></div>
+                        <button class="cart-checkout-btn" onclick="checkout()">Thanh toán ngay →</button>
+                    </div>
+                </div>
+            </div>
+            <div class="auth-wrapper">
+                <button class="auth-icon-btn" id="authBtn"><i class="fas fa-user"></i></button>
+                <div class="auth-dropdown" id="authDropdown">
+                    <div id="authLoggedOut">
+                        <div class="auth-tabs"><button class="auth-tab active" onclick="switchTab('login')">Đăng nhập</button><button class="auth-tab" onclick="switchTab('register')">Đăng ký</button></div>
+                        <div class="auth-form-panel" id="panelLogin">
+                            <div class="auth-error" id="loginError"></div>
+                            <div class="auth-field"><label>Email</label><input type="email" id="loginEmail" placeholder="example@email.com"></div>
+                            <div class="auth-field"><label>Mật khẩu</label><input type="password" id="loginPassword" placeholder="••••••••"></div>
+                            <button class="auth-submit-btn" onclick="doLogin()">Đăng nhập</button>
+                        </div>
+                        <div class="auth-form-panel" id="panelRegister" style="display:none">
+                            <div class="auth-error" id="registerError"></div>
+                            <div class="auth-field"><label>Họ tên</label><input type="text" id="regName" placeholder="Nguyễn Văn A"></div>
+                            <div class="auth-field"><label>Email</label><input type="email" id="regEmail" placeholder="example@email.com"></div>
+                            <div class="auth-field"><label>Mật khẩu</label><input type="password" id="regPassword" placeholder="Tối thiểu 6 ký tự"></div>
+                            <button class="auth-submit-btn" onclick="doRegister()">Tạo tài khoản</button>
+                        </div>
+                    </div>
+                    <div id="authLoggedIn" style="display:none">
+                        <div class="auth-avatar" id="authAvatar">A</div>
+                        <div class="auth-username" id="authUsername"></div>
+                        <div class="auth-useremail" id="authUserEmail"></div>
+                        <button class="auth-logout-btn" onclick="doLogout()">Đăng xuất</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <div class="dropdown-overlay" id="dropdownOverlay"></div>
+
+<!-------------------------------------------------Hoodies--------------------------------------------------------->
+     <section class="hoodies">
+        <div class="container">
+            <h2>TẤT CẢ SẢN PHẨM</h2>
+            <div class="muahang-list">
+ 
+                <!-- ══════════════ BASIC HOODIE · id=BH001 ══════════════ -->
+                <a href="muahang.html?id=BS001" class="product-item item-BH001">
+                    <div class="muahang">
+                        <img src="hoodies/HoodieCottonUSABasicden.webp" alt="Basic Hoodie Đen">
+                        <img src="hoodies/HoodieCottonUSABasictrang.webp" alt="Basic Hoodie Trắng">
+                        <img src="hoodies/HoodieCottonUSABasickem.webp" alt="Basic Hoodie Kem">
+                        <h3>Basic Hoodie</h3>
+                        <p>399.000đ</p>
+                    </div>
+                </a>
+ 
+                <!-- ══════════════ PORSCHE HOODIE · id=PH001 ══════════════ -->
+                <!-- Porsche Night Speed -->
+                <a href="muahang.html?id=PNS001" class="product-item item-PH001">
+                    <div class="muahang">
+                        <img src="hoodies/Porsch NIght Speed Hoodieden.webp" alt="Porsche Night Speed Hoodie Đen">
+                        <img src="hoodies/Porsch NIght Speed Hoodiehong.webp" alt="Porsche Night Speed Hoodie Hồng">
+                        <img src="hoodies/Porsch NIght Speed Hoodiexamtieu.webp.webp" alt="Porsche Night Speed Hoodie Xanh Tím">
+                        <h3>Porsche Night Speed Hoodie</h3>
+                        <p>399.000đ</p>
+                    </div>
+                </a>
+ 
+                <!-- Porsche Silver Turbo S -->
+                <a href="muahang.html?id=PST001" class="product-item item-PH001">
+                    <div class="muahang">
+                        <img src="hoodies/Porsche Silver Turbo S Hoodieden.webp" alt="Porsche Silver Turbo S Hoodie Đen">
+                        <img src="hoodies/Porsche Silver Turbo S Hoodiehong.webp" alt="Porsche Silver Turbo S Hoodie Hồng">
+                        <img src="hoodies/Porsche Silver Turbo S Hoodietrang.webp" alt="Porsche Silver Turbo S Hoodie Trắng">
+                        <h3>Porsche Silver Turbo S Hoodie</h3>
+                        <p>399.000đ</p>
+                    </div>
+                </a>
+ 
+                <!-- Porsche 911 -->
+                <a href="muahang.html?id=Pos911" class="product-item item-PH001">
+                    <div class="muahang">
+                        <img src="hoodies/Posche911Hoodieden.webp" alt="Porsche 911 Hoodie Đen">
+                        <img src="hoodies/Posche911Hoodietrang.webp" alt="Porsche 911 Hoodie Trắng">
+                        <img src="hoodies/Posche911Hoodiehong.webp" alt="Porsche 911 Hoodie Hồng">
+                        <h3>Porsche 911 Hoodie</h3>
+                        <p>399.000đ</p>
+                    </div>
+                </a>
+ 
+                <!-- ══════════════ USA HOODIE · id=USAH001 ══════════════ -->
+                <!-- USA City Of Dream -->
+                <a href="muahang.html?id=USA001" class="product-item item-USAH001">
+                    <div class="muahang">
+                        <img src="hoodies/USA City Of Dream Hoodieden.webp" alt="USA City Of Dream Hoodie Đen">
+                        <img src="hoodies/USA City Of Dream Hoodietrang.webp" alt="USA City Of Dream Hoodie Trắng">
+                        <img src="hoodies/USA City Of Dream Hoodiekem.webp" alt="USA City Of Dream Hoodie Kem">
+                        <h3>USA City Of Dream Hoodie</h3>
+                        <p>399.000đ</p>
+                    </div>
+                </a>
+ 
+                <!-- USA Texas 1945 -->
+                <a href="muahang.html?id=Texas001" class="product-item item-USAH001">
+                    <div class="muahang">
+                        <img src="hoodies/USA Texas 1945 Hoodiehong.webp" alt="USA Texas 1945 Hoodie Hồng">
+                        <img src="hoodies/USA Texas 1945 Hoodiekem.webp" alt="USA Texas 1945 Hoodie Kem">
+                        <img src="hoodies/USA Texas 1945 Hoodiexamtieu.webp" alt="USA Texas 1945 Hoodie Xanh Tím">
+                        <h3>USA Texas 1945 Hoodie</h3>
+                        <p>399.000đ</p>
+                    </div>
+                </a>
+ 
+                <!-- USA Vintage United State -->
+                <a href="muahang.html?id=VUS001" class="product-item item-USAH001">
+                    <div class="muahang">
+                        <img src="hoodies/USA Vintage United State Hoodieden.webp" alt="USA Vintage Hoodie Đen">
+                        <img src="hoodies/USA Vintage United State Hoodietrang.webp" alt="USA Vintage Hoodie Trắng">
+                        <img src="hoodies/USA Vintage United State Hoodiehong.webp" alt="USA Vintage Hoodie Hồng">
+                        <h3>USA Vintage United State Hoodie</h3>
+                        <p>399.000đ</p>
+                    </div>
+                </a>
+ 
+            </div>
+        </div>
+    </section>
+    <section class="contact"> 
+        <h2>Liên hệ với chúng tôi</h2>
+        <div class="social-group">
+            <a href="https://web.facebook.com/03.august4/" target="_blank" rel="noopener noreferrer">
+                <img src="images/Facebook.jpeg" alt="Facebook">
+            </a>
+            <a href="https://www.instagram.com/ming.quann/" target="_blank" rel="noopener noreferrer">
+                <img src="images/instagram.jpeg" alt="Instagram">
+            </a>
+            <a href="https://www.tiktok.com/@03_august4" target="_blank" rel="noopener noreferrer">
+                <img src="images/tiktok.jpeg" alt="TikTok">
+            </a>
+        </div>
+        <h3>Nhận bản tin của chúng tôi</h3>
+        <form class="newsletter-form">
+            <input type="email" class="newsletter-input" placeholder="Nhập email của bạn...">
+            <button type="submit" class="submit-btn">→</button>
+        </form>
+    </section>
+
+    <div class="footer-top">
+        <div class="footer-column">
+            <h4>Thông tin</h4>
+            <ul>
+                <li><a href="https://web.facebook.com/03.august4/">About us</a></li>
+                <li><a href="https://web.facebook.com/03.august4/">Liên hệ chúng tôi</a></li>
+            </ul>
+        </div>
+        <div class="footer-column">
+            <h4>Hỗ trợ khách hàng</h4>
+            <ul>
+                <li><a href="https://web.facebook.com/03.august4/">Chính sách đổi trả & bảo hành</a></li>
+                <li><a href="https://web.facebook.com/03.august4/">Chính sách vận chuyển</a></li>
+                <li><a href="https://web.facebook.com/03.august4/">Điều khoản dịch vụ</a></li>
+                <li><a href="https://web.facebook.com/03.august4/">Chính sách bảo mật</a></li>
+            </ul>
+        </div>
+        <div class="footer-column">
+            <h4>Dịch vụ khách hàng</h4>
+            <ul>
+                <li>Hotline: 0865943240</li>
+                <li>Email: mingquan2004@gmail.com</li>
+                <li>Thứ Hai - Thứ 7</li>
+                <li>08:00 ~ 22:00</li>
+            </ul>
+        </div>
+    </div>
+
+     <script>
+        // Filter by ?id= — Basic: BH001 | Porsche: PH001 | USA: USAH001
+        (function() {
+            const params = new URLSearchParams(window.location.search);
+            const id = params.get('id');
+            if (id) {
+                document.querySelectorAll('.product-item').forEach(item => {
+                    item.classList.add('hidden');
+                });
+                document.querySelectorAll('.item-' + id).forEach(item => {
+                    item.classList.remove('hidden');
+                });
+            }
+        })();
+ 
+        // Sticky header on scroll
+        const header = document.querySelector("header");
+        window.addEventListener("scroll", function() {
+            if (window.pageYOffset > 0) {
+                header.classList.add("sticky");
+            } else {
+                header.classList.remove("sticky");
+            }
+        });
+    </script>
+    <script src="js/cart-auth.js"></script>
+    <script>
+        // ================= CART/AUTH DROPDOWN (Fix lỗi tương tác: xóa & thanh toán & login/register) =================
+        (function initHeaderDropdowns() {
+            const cartBtn = document.getElementById('cartBtn');
+            const cartDropdown = document.getElementById('cartDropdown');
+            const authBtn = document.getElementById('authBtn');
+            const authDropdown = document.getElementById('authDropdown');
+            const overlay = document.getElementById('dropdownOverlay');
+
+            if (!cartBtn || !cartDropdown || !authBtn || !authDropdown || !overlay) return;
+
+            function closeAll() {
+                cartDropdown.classList.remove('open');
+                authDropdown.classList.remove('open');
+                overlay.classList.remove('active');
+            }
+
+            cartBtn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                const isOpen = cartDropdown.classList.contains('open');
+                closeAll();
+                if (!isOpen) {
+                    cartDropdown.classList.add('open');
+                    overlay.classList.add('active');
+                }
+            });
+
+            authBtn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                const isOpen = authDropdown.classList.contains('open');
+                closeAll();
+                if (!isOpen) {
+                    authDropdown.classList.add('open');
+                    overlay.classList.add('active');
+                }
+            });
+
+            cartDropdown.addEventListener('click', function (e) { e.stopPropagation(); });
+            authDropdown.addEventListener('click', function (e) { e.stopPropagation(); });
+
+            overlay.addEventListener('click', function () { closeAll(); });
+            document.addEventListener('click', function () { closeAll(); });
+        })();
+
+
+        (function() {
+            var imgPosition = document.querySelectorAll(".aspect-ratio-169 img");
+            var imgContainer = document.querySelector(".aspect-ratio-169");
+            if (!imgContainer || imgPosition.length === 0) return;
+            imgPosition.forEach(function(img, idx) { img.style.left = idx * 100 + "%"; });
+            var index = 0;
+            setInterval(function() {
+                index = (index + 1) % imgPosition.length;
+                imgContainer.style.left = "-" + index * 100 + "%";
+            }, 5000);
+        })();
+        // ==================== TÌM KIẾM TOÀN TRANG (CHUYỂN HƯỚNG ĐẾN SEARCH-RESULTS.HTML) ====================
+(function() {
+    var searchInput = document.querySelector('.search-icon input');
+    if (!searchInput) return;
+    
+    // Tránh gán sự kiện nhiều lần
+    if (searchInput.hasAttribute('data-search-bound')) return;
+    searchInput.setAttribute('data-search-bound', 'true');
+    
+    // Đảm bảo input có thể nhập được
+    searchInput.disabled = false;
+    searchInput.readOnly = false;
+    searchInput.style.pointerEvents = 'auto';
+    
+    // Xử lý khi nhấn Enter
+    searchInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            const keyword = this.value.trim();
+            if (keyword !== '') {
+                window.location.href = 'search-results.html?q=' + encodeURIComponent(keyword);
+            }
+        }
+    });
+    
+    console.log('✅ Tìm kiếm toàn trang đã sẵn sàng!');
+})();
+    </script>
+    
+</body>
+</html>

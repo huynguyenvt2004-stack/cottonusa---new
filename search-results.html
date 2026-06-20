@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <title>Kết quả tìm kiếm - Cotton USA</title>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <img src="images/logo.avif" alt="Cotton USA">
+        </div>
+        <ul class="MENU">
+            <li><a href="index.html">TRANG CHỦ</a></li>
+            <li class="has-submenu">
+                <a href="quan.html">QUẦN <span class="arrow">▼</span></a>
+                <ul class="sub-menu">
+                    <li><a href="quan.html?type=ong-suong">Quần Ống Suông</a></li>
+                    <li><a href="quan.html?type=jogger">Quần Jogger</a></li>
+                </ul>
+            </li>
+            <li class="has-submenu">
+                <a href="sweater.html">SWEATERS <span class="arrow">▼</span></a>
+                <ul class="sub-menu">
+                    <li><a href="sweater.html?id=US001">University Sweater</a></li>
+                    <li><a href="sweater.html?id=CS001">Car Sweater</a></li>
+                    <li><a href="sweater.html?id=FS001">Floral Sweater</a></li>
+                </ul>
+            </li>
+            <li class="has-submenu">
+                <a href="hoodies.html">HOODIES <span class="arrow">▼</span></a>
+                <ul class="sub-menu">
+                    <li><a href="hoodies.html?id=BH001">Basic Hoodie</a></li>
+                    <li><a href="hoodies.html?id=PH001">Porsche Hoodie</a></li>
+                    <li><a href="hoodies.html?id=USAH001">USA Hoodie</a></li>
+                </ul>
+            </li>
+           <li class="has-submenu">
+                <a href="aothun.html">ÁO THUN <span class="arrow">▼</span></a>
+                <ul class="sub-menu">
+                    <li><a href="aothun.html">Áo Thun ngắn tay <span class="arrow">▼</span></a>
+                        <ul class="sub-menu">
+                            <li><a href="aothun.html?id=W001">Áo Thun Watch</a></li>
+                            <li><a href="aothun.html?id=POR001">Áo Thun Poscher</a></li>
+                            <li><a href="aothun.html?id=USA001">Áo Thun USA</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="aothundaitay.html">Áo Thun dài tay <span class="arrow">▼</span></a>
+                        <ul class="sub-menu"><li>
+                            <a href="aothundaitay.html?id=RP001">Áo Thun Dài Tay Rapper</a></li>
+                            <li><a href="aothundaitay.html?id=POR001">Áo Thun Dài Tay Poscher</a></li>
+                            <li><a href="aothundaitay.html?id=USA001">Áo Thun Dài Tay USA</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+        <div class="other">
+            <div class="search-icon">
+                <input type="text" id="searchInput" placeholder="Tìm kiếm sản phẩm...">
+                <i class="fas fa-search"></i>
+            </div>
+            <div class="cart-wrapper">
+                <button class="cart-icon-btn" id="cartBtn"><i class="fas fa-shopping-bag"></i><span class="cart-badge" id="cartBadge">0</span></button>
+                <div class="cart-dropdown" id="cartDropdown">
+                    <div class="cart-dropdown-header"><span>Giỏ hàng</span><span id="cartItemCount">0 sản phẩm</span></div>
+                    <div class="cart-items-list" id="cartItemsList"><div class="cart-empty-msg"><i class="fas fa-shopping-bag"></i>Giỏ hàng trống</div></div>
+                    <div class="cart-dropdown-footer" id="cartFooter" style="display:none">
+                        <div class="cart-total-row"><span>Tổng cộng:</span><span class="cart-total-amount" id="cartTotal">0₫</span></div>
+                        <button class="cart-checkout-btn" onclick="checkout()">Thanh toán ngay →</button>
+                    </div>
+                </div>
+            </div>
+            <div class="auth-wrapper">
+                <button class="auth-icon-btn" id="authBtn"><i class="fas fa-user"></i></button>
+                <div class="auth-dropdown" id="authDropdown">
+                    <div id="authLoggedOut">
+                        <div class="auth-tabs"><button class="auth-tab active" onclick="switchTab('login')">Đăng nhập</button><button class="auth-tab" onclick="switchTab('register')">Đăng ký</button></div>
+                        <div class="auth-form-panel" id="panelLogin">
+                            <div class="auth-error" id="loginError"></div>
+                            <div class="auth-field"><label>Email</label><input type="email" id="loginEmail" placeholder="example@email.com"></div>
+                            <div class="auth-field"><label>Mật khẩu</label><input type="password" id="loginPassword" placeholder="••••••••"></div>
+                            <button class="auth-submit-btn" onclick="doLogin()">Đăng nhập</button>
+                        </div>
+                        <div class="auth-form-panel" id="panelRegister" style="display:none">
+                            <div class="auth-error" id="registerError"></div>
+                            <div class="auth-field"><label>Họ tên</label><input type="text" id="regName" placeholder="Nguyễn Văn A"></div>
+                            <div class="auth-field"><label>Email</label><input type="email" id="regEmail" placeholder="example@email.com"></div>
+                            <div class="auth-field"><label>Mật khẩu</label><input type="password" id="regPassword" placeholder="Tối thiểu 6 ký tự"></div>
+                            <button class="auth-submit-btn" onclick="doRegister()">Tạo tài khoản</button>
+                        </div>
+                    </div>
+                    <div id="authLoggedIn" style="display:none">
+                        <div class="auth-avatar" id="authAvatar">A</div>
+                        <div class="auth-username" id="authUsername"></div>
+                        <div class="auth-useremail" id="authUserEmail"></div>
+                        <button class="auth-logout-btn" onclick="doLogout()">Đăng xuất</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <div class="dropdown-overlay" id="dropdownOverlay"></div>
+
+    <section class="search-results-container">
+        <div class="container">
+            <div class="search-header">
+                <h2>🔍 Kết quả tìm kiếm</h2>
+                <p>Tìm thấy <span id="resultCount">0</span> sản phẩm cho từ khóa "<span id="searchKeyword" class="search-keyword"></span>"</p>
+            </div>
+            <div class="results-count" id="resultsCount"></div>
+            <div class="muahang-list" id="searchResultsList">
+                <!-- Kết quả sẽ hiển thị ở đây -->
+            </div>
+        </div>
+    </section>
+
+    <section class="contact">
+        <h2>Liên hệ với chúng tôi</h2>
+        <div class="social-group">
+            <a href="https://web.facebook.com/03.august4/" target="_blank"><img src="images/Facebook.jpeg" alt="Facebook"></a>
+            <a href="https://www.instagram.com/ming.quann" target="_blank"><img src="images/instagram.jpeg" alt="Instagram"></a>
+            <a href="https://www.tiktok.com/@03_august4" target="_blank"><img src="images/tiktok.jpeg" alt="TikTok"></a>
+        </div>
+        <h3>Nhận bản tin của chúng tôi</h3>
+        <form class="newsletter-form"><input type="email" class="newsletter-input" placeholder="Nhập email của bạn..."><button type="submit" class="submit-btn">→</button></form>
+    </section>
+
+    <div class="footer-top">
+        <div class="footer-column"><h4>Thông tin</h4><ul><li><a href="#">About us</a></li><li><a href="#">Liên hệ chúng tôi</a></li></ul></div>
+        <div class="footer-column"><h4>Hỗ trợ khách hàng</h4><ul><li><a href="#">Chính sách đổi trả & bảo hành</a></li><li><a href="#">Chính sách vận chuyển</a></li><li><a href="#">Điều khoản dịch vụ</a></li><li><a href="#">Chính sách bảo mật</a></li></ul></div>
+        <div class="footer-column"><h4>Dịch vụ khách hàng</h4><ul><li>Hotline: 0865943240</li><li>Email: mingquan2004@gmail.com</li><li>Thứ Hai - Thứ 7</li><li>08:00 ~ 22:00</li></ul></div>
+    </div>
+
+    <script src="js/cart-auth.js"></script>
+    <script>
+        // ================= DATABASE SẢN PHẨM TOÀN TRANG =================
+        const ALL_PRODUCTS = [
+            // QUẦN
+            { id: "QOS001", name: "Quần Ống Suông Nỉ Bông Cotton USA Basic", price: "391.000", img: "quan/quanongsuong.webp", link: "muahang.html?id=QOS001", category: "Quần" },
+            { id: "QOJ001", name: "Quần Jogger Nỉ Bông Cotton USA Basic", price: "390.000", img: "quan/quanjoggerxamtieu.webp", link: "muahang.html?id=QOJ001", category: "Quần" },
+            
+            // SWEATER
+            { id: "HUST001", name: "HUST University Sweater", price: "399.000", img: "sweater/HUSTsweaterden.webp", link: "muahang.html?id=HUST001", category: "Sweater" },
+            { id: "NEU001", name: "NEU University Sweater", price: "399.000", img: "sweater/NEUsweaterden.webp", link: "muahang.html?id=NEU001", category: "Sweater" },
+            { id: "RMIT001", name: "RMIT University Sweater", price: "399.000", img: "sweater/RMITsweaterden.webp", link: "muahang.html?id=RMIT001", category: "Sweater" },
+            { id: "PORSCHE001", name: "Porsche 911 GT3RS Sweater", price: "399.000", img: "sweater/Porschesweaterden.webp", link: "muahang.html?id=PORSCHE001", category: "Sweater" },
+            { id: "BMW001", name: "BMW M3 Competition Sweater", price: "399.000", img: "sweater/BMWsweaterden.webp", link: "muahang.html?id=BMW001", category: "Sweater" },
+            { id: "MERCEDES001", name: "Mercedes Sweater", price: "399.000", img: "sweater/Mercedessweaterden.webp", link: "muahang.html?id=MERCEDES001", category: "Sweater" },
+            { id: "FLORAL001", name: "Floral Cotton USA Sweater", price: "399.000", img: "sweater/FloralCottonUsaSweaterden.webp", link: "muahang.html?id=FLORAL001", category: "Sweater" },
+            { id: "HOACUC001", name: "Hoa Cúc Daisy Sweater", price: "399.000", img: "sweater/hoacucsweaterden.webp", link: "muahang.html?id=HOACUC001", category: "Sweater" },
+            
+            // HOODIES
+            { id: "BS001", name: "Basic Hoodie", price: "399.000", img: "hoodies/HoodieCottonUSABasicden.webp", link: "muahang.html?id=BS001", category: "Hoodies" },
+            { id: "PNS001", name: "Porsche Night Speed Hoodie", price: "399.000", img: "hoodies/Porsch NIght Speed Hoodieden.webp", link: "muahang.html?id=PNS001", category: "Hoodies" },
+            { id: "PST001", name: "Porsche Silver Turbo S Hoodie", price: "399.000", img: "hoodies/Porsche Silver Turbo S Hoodieden.webp", link: "muahang.html?id=PST001", category: "Hoodies" },
+            { id: "Pos911", name: "Porsche 911 Hoodie", price: "399.000", img: "hoodies/Posche911Hoodieden.webp", link: "muahang.html?id=Pos911", category: "Hoodies" },
+            { id: "USA001", name: "USA City Of Dream Hoodie", price: "399.000", img: "hoodies/USA City Of Dream Hoodieden.webp", link: "muahang.html?id=USA001", category: "Hoodies" },
+            { id: "Texas001", name: "USA Texas 1945 Hoodie", price: "399.000", img: "hoodies/USA Texas 1945 Hoodiehong.webp", link: "muahang.html?id=Texas001", category: "Hoodies" },
+            { id: "VUS001", name: "USA Vintage United State Hoodie", price: "399.000", img: "hoodies/USA Vintage United State Hoodieden.webp", link: "muahang.html?id=VUS001", category: "Hoodies" },
+            
+            // ÁO THUN NGẮN TAY
+            { id: "WDX300", name: "Watch Doxa X300", price: "189.000", img: "aothun/Watch Doxa X300 den.webp", link: "muahang.html?id=WDX300", category: "Áo Thun" },
+            { id: "WOT001", name: "Watch One Time", price: "189.000", img: "aothun/Watch One Time den.webp", link: "muahang.html?id=WOT001", category: "Áo Thun" },
+            { id: "WTC001", name: "Watch That Completes", price: "189.000", img: "aothun/Watch That Completes den.webp", link: "muahang.html?id=WTC001", category: "Áo Thun" },
+            { id: "PP911T", name: "Pink Porsche 911 Turbo", price: "189.000", img: "aothun/Pink Porsche 911 Turbo den.webp", link: "muahang.html?id=PP911T", category: "Áo Thun" },
+            { id: "PVS001", name: "Porsche Vintage Style", price: "189.000", img: "aothun/Porsche Vintage Style den.webp", link: "muahang.html?id=PVS001", category: "Áo Thun" },
+            { id: "PVB001", name: "Porsche Violet Berry", price: "189.000", img: "aothun/Porsche Violet Berry den.webp", link: "muahang.html?id=PVB001", category: "Áo Thun" },
+            { id: "UCE001", name: "USA California Extraordinary", price: "189.000", img: "aothun/USA California Extraordinary den.webp", link: "muahang.html?id=UCE001", category: "Áo Thun" },
+            { id: "ULA001", name: "USA Los Angeles", price: "189.000", img: "aothun/USA Los Ageles den.webp", link: "muahang.html?id=ULA001", category: "Áo Thun" },
+            { id: "UMTE001", name: "USA More Than Enough", price: "189.000", img: "aothun/USA More Than Enough den.webp", link: "muahang.html?id=UMTE001", category: "Áo Thun" },
+            
+            // ÁO THUN DÀI TAY
+            { id: "ER001", name: "Rapper Eminem Recovery", price: "189.000", img: "aothundaitay/Rapper Eminem Recovery den.webp", link: "muahang.html?id=ER001", category: "Áo Thun Dài Tay" },
+            { id: "ICDSN001", name: "Rapper Ice Cube Dont Say Nothing", price: "189.000", img: "aothundaitay/Rapper Ice Cube Dont Say Nothing den.webp", link: "muahang.html?id=ICDSN001", category: "Áo Thun Dài Tay" },
+            { id: "TSFT001", name: "Rapper Travis Scott Fein Typo", price: "189.000", img: "aothundaitay/Rapper Travis Scott Fein Typo den.webp", link: "muahang.html?id=TSFT001", category: "Áo Thun Dài Tay" },
+            { id: "AB911", name: "Porsche All Black 911 GT3RS", price: "189.000", img: "aothundaitay/Porsche All Black 911 GT3RS den.webp", link: "muahang.html?id=AB911", category: "Áo Thun Dài Tay" },
+            { id: "ESR001", name: "Porsche Eat Sleep Repeat", price: "189.000", img: "aothundaitay/Porsche Eat Sleep Repeat den.webp", link: "muahang.html?id=ESR001", category: "Áo Thun Dài Tay" },
+            { id: "TSG001", name: "Porsche Turbo S GTSTREET", price: "189.000", img: "aothundaitay/Porsche Turbo S GTSTREET den.webp", link: "muahang.html?id=TSG001", category: "Áo Thun Dài Tay" },
+            { id: "MTE001", name: "USA More Than Enough (Dài Tay)", price: "189.000", img: "aothundaitay/USA More Than Enough den.webp", link: "muahang.html?id=MTE001", category: "Áo Thun Dài Tay" },
+            { id: "NYC001", name: "USA New York City", price: "189.000", img: "aothundaitay/USA New York City den.webp", link: "muahang.html?id=NYC001", category: "Áo Thun Dài Tay" },
+            { id: "Texas002", name: "USA Texas 1945 (Dài Tay)", price: "189.000", img: "aothundaitay/USA Texas 1945 den.webp", link: "muahang.html?id=Texas002", category: "Áo Thun Dài Tay" }
+        ];
+
+        // Lấy từ khóa từ URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const keyword = urlParams.get('q') || '';
+        
+        // Hiển thị từ khóa
+        document.getElementById('searchKeyword').textContent = keyword;
+        
+        // Tìm kiếm sản phẩm
+        let results = [];
+        if (keyword.trim() !== '') {
+            const lowerKeyword = keyword.toLowerCase();
+            results = ALL_PRODUCTS.filter(product => 
+                product.name.toLowerCase().includes(lowerKeyword) ||
+                product.category.toLowerCase().includes(lowerKeyword)
+            );
+        }
+        
+        // Cập nhật số lượng kết quả
+        document.getElementById('resultCount').textContent = results.length;
+        
+        // Hiển thị kết quả
+        const resultsList = document.getElementById('searchResultsList');
+        
+        if (results.length === 0) {
+            resultsList.innerHTML = `
+                <div class="no-results">
+                    <i class="fas fa-search"></i>
+                    <h3>Không tìm thấy sản phẩm</h3>
+                    <p>Rất tiếc, không có sản phẩm nào phù hợp với từ khóa "${keyword}"</p>
+                    <p style="margin-top: 20px;">Vui lòng thử lại với từ khóa khác!</p>
+                </div>
+            `;
+        } else {
+            let html = '';
+            results.forEach(product => {
+                html += `
+                    <a href="${product.link}" class="product-item">
+                        <div class="muahang">
+                            <img src="${product.img}" alt="${product.name}">
+                            <h3>${product.name}</h3>
+                            <p>${product.price}đ</p>
+                            <span style="font-size: 12px; color: #888;">${product.category}</span>
+                        </div>
+                    </a>
+                `;
+            });
+            resultsList.innerHTML = html;
+        }
+        
+        // ================= HEADER DROPDOWN =================
+        (function initHeaderDropdowns() {
+            const cartBtn = document.getElementById('cartBtn');
+            const cartDropdown = document.getElementById('cartDropdown');
+            const authBtn = document.getElementById('authBtn');
+            const authDropdown = document.getElementById('authDropdown');
+            const overlay = document.getElementById('dropdownOverlay');
+
+            if (!cartBtn || !cartDropdown || !authBtn || !authDropdown || !overlay) return;
+
+            function closeAll() {
+                cartDropdown.classList.remove('open');
+                authDropdown.classList.remove('open');
+                overlay.classList.remove('active');
+            }
+
+            cartBtn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                const isOpen = cartDropdown.classList.contains('open');
+                closeAll();
+                if (!isOpen) {
+                    cartDropdown.classList.add('open');
+                    overlay.classList.add('active');
+                }
+            });
+
+            authBtn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                const isOpen = authDropdown.classList.contains('open');
+                closeAll();
+                if (!isOpen) {
+                    authDropdown.classList.add('open');
+                    overlay.classList.add('active');
+                }
+            });
+
+            cartDropdown.addEventListener('click', function (e) { e.stopPropagation(); });
+            authDropdown.addEventListener('click', function (e) { e.stopPropagation(); });
+
+            overlay.addEventListener('click', function () { closeAll(); });
+            document.addEventListener('click', function () { closeAll(); });
+        })();
+
+        // ================= TÌM KIẾM TRÊN HEADER (CHUYỂN HƯỚNG) =================
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    const searchKeyword = this.value.trim();
+                    if (searchKeyword !== '') {
+                        window.location.href = 'search-results.html?q=' + encodeURIComponent(searchKeyword);
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>

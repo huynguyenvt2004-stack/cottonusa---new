@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <title>Thanh toán - Cotton USA</title>
+    <style>
+        .amount-display {
+            background: #f0f9ff;
+            border: 2px solid #0895f3;
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .amount-display .label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        .amount-display .value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #e30613;
+        }
+        .amount-display .value sup {
+            font-size: 18px;
+        }
+        .bank-info-summary {
+            background: #f7f9fc;
+            border: 1px solid #d9e8f8;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 20px 0;
+        }
+        .bank-info-summary .row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #eef2f8;
+        }
+        .bank-info-summary .row:last-child {
+            border-bottom: none;
+        }
+        .bank-info-summary .label {
+            color: #666;
+        }
+        .bank-info-summary .value {
+            font-weight: 600;
+            color: #333;
+        }
+        .bank-info-summary .amount {
+            color: #e30613;
+            font-size: 18px;
+        }
+        /* Toast message */
+        .toast-message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 8px;
+            color: #fff;
+            font-weight: 500;
+            z-index: 99999;
+            animation: slideDown 0.3s ease;
+            max-width: 400px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .toast-message.success { background: #22c55e; }
+        .toast-message.error { background: #ef4444; }
+        .toast-message.info { background: #3b82f6; }
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #fff;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        /* Modal success */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .modal-box {
+            background: #fff;
+            border-radius: 16px;
+            padding: 40px;
+            max-width: 450px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            animation: modalIn 0.3s ease;
+        }
+        @keyframes modalIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .modal-close {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            font-size: 24px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #999;
+        }
+        .modal-close:hover { color: #333; }
+        .modal-icon {
+            text-align: center;
+            font-size: 56px;
+            color: #22c55e;
+            margin-bottom: 12px;
+        }
+        .modal-box h2 {
+            text-align: center;
+            font-size: 22px;
+            color: #1a1a2e;
+            margin-bottom: 8px;
+        }
+        .modal-box .sub {
+            text-align: center;
+            color: #888;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        .order-info {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 16px 20px;
+            margin: 16px 0;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+        .order-info span {
+            font-weight: 600;
+            color: #1a1a2e;
+        }
+        .order-info .total {
+            color: #e30613;
+            font-size: 18px;
+            font-weight: 700;
+        }
+        .btn-confirm {
+            width: 100%;
+            padding: 14px;
+            background: #e30613;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .btn-confirm:hover {
+            background: #c70510;
+        }
+        .qr-img-wrap {
+            text-align: center;
+            padding: 16px;
+            background: #fafafa;
+            border-radius: 10px;
+            border: 1px solid #e8e8e8;
+            margin: 12px 0;
+            min-height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .qr-img-wrap img {
+            max-width: 100%;
+            max-height: 200px;
+        }
+        .qr-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e8e8e8;
+            border-top-color: #e30613;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        .bank-info {
+            font-size: 14px;
+            line-height: 2;
+            padding: 12px 16px;
+            background: #f0f7ff;
+            border-radius: 8px;
+            border: 1px solid #d9e8f8;
+            margin: 12px 0;
+        }
+        .bank-info .label {
+            color: #888;
+            display: inline-block;
+            min-width: 100px;
+        }
+        .bank-info .val {
+            font-weight: 600;
+            color: #1a1a2e;
+        }
+        .bank-info .amount-val {
+            color: #e30613;
+            font-size: 16px;
+        }
+        .qr-note {
+            font-size: 13px;
+            color: #e65100;
+            background: #fff8e1;
+            border: 1px solid #ffe082;
+            border-radius: 8px;
+            padding: 10px 14px;
+            margin: 12px 0;
+        }
+        .btn-done {
+            width: 100%;
+            padding: 14px;
+            background: #0895f3;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .btn-done:hover {
+            background: #0678cc;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo"><img src="images/logo.avif" alt="Cotton USA"></div>
+        <ul class="MENU">
+            <li><a href="index.html">TRANG CHỦ</a></li>
+            <li class="has-submenu"><a href="quan.html">QUẦN <span class="arrow">▼</span></a>
+                <ul class="sub-menu"><li><a href="quan.html?type=ong-suong">Quần Ống Suông</a></li><li><a href="quan.html?type=jogger">Quần Jogger</a></li></ul>
+            </li>
+            <li class="has-submenu"><a href="sweater.php">SWEATERS <span class="arrow">▼</span></a>
+                <ul class="sub-menu"><li><a href="sweater.php?id=US001">University Sweater</a></li><li><a href="sweater.php?id=CS001">Car Sweater</a></li><li><a href="sweater.php?id=FS001">Floral Sweater</a></li></ul>
+            </li>
+            <li class="has-submenu"><a href="hoodies.php">HOODIES <span class="arrow">▼</span></a>
+                <ul class="sub-menu"><li><a href="hoodies.php?id=BH001">Basic Hoodie</a></li><li><a href="hoodies.php?id=PH001">Porsche Hoodie</a></li><li><a href="hoodies.php?id=USAH001">USA Hoodie</a></li></ul>
+            </li>
+            <li class="has-submenu"><a href="aothun.php">ÁO THUN <span class="arrow">▼</span></a>
+                <ul class="sub-menu">
+                    <li><a href="aothun.php">Áo Thun ngắn tay <span class="arrow">▼</span></a>
+                        <ul class="sub-menu"><li><a href="aothun.php?id=W001">Áo Thun Watch</a></li><li><a href="aothun.php?id=POR001">Áo Thun Poscher</a></li><li><a href="aothun.php?id=USA001">Áo Thun USA</a></li></ul>
+                    </li>
+                    <li><a href="aothundaitay.php">Áo Thun dài tay <span class="arrow">▼</span></a>
+                        <ul class="sub-menu"><li><a href="aothundaitay.php?id=RP001">Áo Thun Dài Tay Rapper</a></li><li><a href="aothundaitay.php?id=POR001">Áo Thun Dài Tay Poscher</a></li><li><a href="aothundaitay.php?id=USA001">Áo Thun Dài Tay USA</a></li></ul>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+        <div class="other">
+            <div class="search-icon"><input type="text" placeholder="Tìm kiếm sản phẩm..." id="searchInput"><i class="fas fa-search"></i></div>
+            <div class="cart-wrapper">
+                <button class="cart-icon-btn" id="cartBtn"><i class="fas fa-shopping-bag"></i><span class="cart-badge" id="cartBadge">0</span></button>
+                <div class="cart-dropdown" id="cartDropdown">
+                    <div class="cart-dropdown-header"><span>Giỏ hàng</span><span id="cartItemCount">0 sản phẩm</span></div>
+                    <div class="cart-items-list" id="cartItemsList"><div class="cart-empty-msg"><i class="fas fa-shopping-bag"></i>Giỏ hàng trống</div></div>
+                    <div class="cart-dropdown-footer" id="cartFooter" style="display:none">
+                        <div class="cart-total-row"><span>Tổng cộng:</span><span class="cart-total-amount" id="cartTotal">0₫</span></div>
+                        <button class="cart-checkout-btn" onclick="window.location.href='giaohang.html'">Thanh toán ngay →</button>
+                    </div>
+                </div>
+            </div>
+            <div class="auth-wrapper">
+                <button class="auth-icon-btn" id="authBtn"><i class="fas fa-user"></i></button>
+                <div class="auth-dropdown" id="authDropdown">
+                    <div id="authLoggedOut">
+                        <div class="auth-tabs"><button class="auth-tab active" onclick="switchTab('login')">Đăng nhập</button><button class="auth-tab" onclick="switchTab('register')">Đăng ký</button></div>
+                        <div class="auth-form-panel" id="panelLogin">
+                            <div class="auth-error" id="loginError"></div>
+                            <div class="auth-field"><label>Email</label><input type="email" id="loginEmail" placeholder="example@email.com"></div>
+                            <div class="auth-field"><label>Mật khẩu</label><input type="password" id="loginPassword" placeholder="••••••••"></div>
+                            <button class="auth-submit-btn" onclick="doLogin()">Đăng nhập</button>
+                        </div>
+                        <div class="auth-form-panel" id="panelRegister" style="display:none">
+                            <div class="auth-error" id="registerError"></div>
+                            <div class="auth-field"><label>Họ tên</label><input type="text" id="regName" placeholder="Nguyễn Văn A"></div>
+                            <div class="auth-field"><label>Email</label><input type="email" id="regEmail" placeholder="example@email.com"></div>
+                            <div class="auth-field"><label>Mật khẩu</label><input type="password" id="regPassword" placeholder="Tối thiểu 6 ký tự"></div>
+                            <button class="auth-submit-btn" onclick="doRegister()">Tạo tài khoản</button>
+                        </div>
+                    </div>
+                    <div id="authLoggedIn" style="display:none">
+                        <div class="auth-avatar" id="authAvatar">A</div>
+                        <div class="auth-username" id="authUsername"></div>
+                        <div class="auth-useremail" id="authUserEmail"></div>
+                        <button class="auth-logout-btn" onclick="doLogout()">Đăng xuất</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <div class="dropdown-overlay" id="dropdownOverlay"></div>
+
+    <section class="chuyentien">
+        <div class="container">
+            <div class="chuyentien-top-wrap">
+                <div class="chuyentien-top">
+                    <div class="chuyentien-top-item"><i class="fas fa-shopping-cart"></i></div>
+                    <div class="chuyentien-top-adress chuyentien-top-item"><i class="fas fa-map-marker-alt"></i></div>
+                    <div class="chuyentien-top-chuyentien chuyentien-top-item"><i class="fas fa-money-check-alt"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <div class="chuyentien-content row">
+                <div class="chuyentien-content-left">
+                    <div class="chuyentien-content-left-phuongthuc-giaohang">
+                        <p style="font-weight: bold;">Phương thức giao hàng</p>
+                        <div class="chuyentien-content-left-phuongthuc-giaohang-item">
+                            <input type="radio" name="phuongthuc-giaohang" id="giaohangnhanh" checked>
+                            <label for="giaohangnhanh">Giao hàng nhanh</label>
+                        </div>
+                    </div>
+                    <div class="chuyentien-content-left-phuongthuc-thanhtoan">
+                        <p style="font-weight: bold;">Phương thức thanh toán</p>
+                        <p>Mọi giao dịch đều được bảo mật. Thông tin thẻ sẽ không bao giờ được lưu lại.</p>
+                        <div class="chuyentien-content-left-phuongthuc-thanhtoan-item">
+                            <input type="radio" name="phuongthuc-thanhtoan" id="thanhtoankhinhanhang" checked>
+                            <label for="thanhtoankhinhanhang">Thanh toán khi nhận hàng</label>
+                        </div>
+                        <div class="chuyentien-content-left-phuongthuc-thanhtoan-item">
+                            <input type="radio" name="phuongthuc-thanhtoan" id="chuyenkhoan">
+                            <label for="chuyenkhoan">Chuyển khoản ngân hàng</label>
+                            <div class="chuyentien-content-left-phuongthuc-thanhtoan-item-img">
+                                <img src="images/nganhang.png" alt="Ngân hàng">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="chuyentien-content-right">
+                    <div class="chuyentien-content-right-button">
+                        <input type="text" id="discountCode" placeholder="Nhập mã giảm giá">
+                        <button id="applyDiscountBtn"><i class="fas fa-check"></i></button>
+                    </div>
+                    <div class="amount-display" id="amountDisplay">
+                        <div class="label">Tổng tiền cần thanh toán</div>
+                        <div class="value" id="totalAmount">0<sup>₫</sup></div>
+                    </div>
+                    <div class="chuyentien-content-right-thanhtoan">
+                        <button id="btnTiepTucThanhToan">TIẾP TỤC THANH TOÁN</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODAL THÀNH CÔNG (COD) -->
+    <div class="modal-overlay" id="modalSuccess">
+        <div class="modal-box modal-success">
+            <button class="modal-close" onclick="closeModal('modalSuccess')">&times;</button>
+            <div class="modal-icon"><i class="fas fa-check-circle"></i></div>
+            <h2>Đặt hàng thành công!</h2>
+            <p class="sub">Cảm ơn bạn đã mua sắm tại Cotton USA.</p>
+            <div class="order-info" id="orderInfo"></div>
+            <button class="btn-confirm" onclick="closeModal('modalSuccess'); window.location.href='index.html'">Tiếp tục mua sắm</button>
+        </div>
+    </div>
+
+    <!-- MODAL QR CHUYỂN KHOẢN -->
+    <div class="modal-overlay" id="modalQR">
+        <div class="modal-box modal-qr">
+            <button class="modal-close" onclick="closeModal('modalQR')">&times;</button>
+            <h2>Chuyển khoản ngân hàng</h2>
+            <p class="sub">Quét mã QR để thanh toán</p>
+            <div class="qr-img-wrap" id="qrImgWrap">
+                <div class="qr-spinner"></div>
+            </div>
+            <div class="bank-info" id="bankInfo">
+                <div><span class="label">Ngân hàng:</span> <span class="val">MB Bank</span></div>
+                <div><span class="label">Số tài khoản:</span> <span class="val">200308204</span></div>
+                <div><span class="label">Chủ tài khoản:</span> <span class="val">LE MINH QUAN</span></div>
+                <div><span class="label">Số tiền:</span> <span class="val amount-val" id="qrAmount">0₫</span></div>
+                <div><span class="label">Nội dung CK:</span> <span class="val" id="qrContent">COTTONUSA...</span></div>
+            </div>
+            <div class="qr-note"><i class="fas fa-info-circle"></i> Sau khi chuyển khoản, đơn hàng sẽ được xác nhận trong vòng 24h.</div>
+            <button class="btn-done" onclick="checkPaymentStatus()">Đã thanh toán</button>
+        </div>
+    </div>
+
+    <script src="js/cart-auth.js"></script>
+    <script>
+    // ================= CART/AUTH DROPDOWN =================
+    (function initHeaderDropdowns() {
+        const cartBtn = document.getElementById('cartBtn');
+        const cartDropdown = document.getElementById('cartDropdown');
+        const authBtn = document.getElementById('authBtn');
+        const authDropdown = document.getElementById('authDropdown');
+        const overlay = document.getElementById('dropdownOverlay');
+
+        if (!cartBtn || !cartDropdown || !authBtn || !authDropdown || !overlay) return;
+
+        function closeAll() {
+            cartDropdown.classList.remove('open');
+            authDropdown.classList.remove('open');
+            overlay.classList.remove('active');
+        }
+
+        cartBtn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            const isOpen = cartDropdown.classList.contains('open');
+            closeAll();
+            if (!isOpen) {
+                cartDropdown.classList.add('open');
+                overlay.classList.add('active');
+            }
+        });
+
+        authBtn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            const isOpen = authDropdown.classList.contains('open');
+            closeAll();
+            if (!isOpen) {
+                authDropdown.classList.add('open');
+                overlay.classList.add('active');
+            }
+        });
+
+        cartDropdown.addEventListener('click', function (e) { e.stopPropagation(); });
+        authDropdown.addEventListener('click', function (e) { e.stopPropagation(); });
+
+        overlay.addEventListener('click', function () { closeAll(); });
+        document.addEventListener('click', function () { closeAll(); });
+    })();
+
+    // ================= TOAST =================
+    function showToast(message, type = 'info') {
+        const existing = document.querySelector('.toast-message');
+        if (existing) existing.remove();
+        
+        const toast = document.createElement('div');
+        toast.className = 'toast-message ' + type;
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateY(-20px)';
+            toast.style.transition = 'all 0.3s ease';
+            setTimeout(() => toast.remove(), 300);
+        }, 4000);
+    }
+
+    // ================= HELPERS =================
+    function getCart() {
+        try {
+            const cart = localStorage.getItem('cottonusa_cart');
+            return cart ? JSON.parse(cart) : [];
+        } catch (e) {
+            return [];
+        }
+    }
+
+    function formatPrice(price) {
+        return price.toLocaleString('vi-VN') + 'đ';
+    }
+
+    function calculateTotal() {
+        let total = 0;
+        const cart = getCart();
+        
+        if (cart && cart.length > 0) {
+            cart.forEach(item => {
+                const price = parseInt(item.price) || 0;
+                const qty = parseInt(item.qty) || 1;
+                total += price * qty;
+            });
+        }
+        
+        const discount = parseFloat(localStorage.getItem('cottonusa_discount') || '0');
+        total = total - discount;
+        if (total < 0) total = 0;
+        
+        return total;
+    }
+
+    function updateTotalDisplay() {
+        const total = calculateTotal();
+        const totalElement = document.getElementById('totalAmount');
+        if (totalElement) {
+            totalElement.innerHTML = total.toLocaleString() + '<sup>₫</sup>';
+        }
+        return total;
+    }
+
+    // ================= TẠO ĐƠN HÀNG =================
+    function createOrder(paymentMethod) {
+        return new Promise((resolve, reject) => {
+            const customerInfo = JSON.parse(localStorage.getItem('cottonusa_customer_info') || '{}');
+            
+            if (!customerInfo.name || !customerInfo.phone || !customerInfo.address) {
+                showToast('Vui lòng nhập đầy đủ thông tin giao hàng!', 'error');
+                setTimeout(() => { window.location.href = 'giaohang.html'; }, 1500);
+                reject('Thiếu thông tin');
+                return;
+            }
+
+            const cart = getCart();
+            if (!cart || cart.length === 0) {
+                showToast('Giỏ hàng trống!', 'error');
+                reject('Giỏ hàng trống');
+                return;
+            }
+
+            // Lưu giỏ hàng vào biến tạm
+            const cartData = JSON.parse(JSON.stringify(cart));
+
+            // Tính tổng tiền và tạo items
+            let total = 0;
+            const items = cartData.map(item => {
+                const price = parseInt(item.price) || 0;
+                const qty = parseInt(item.qty) || 1;
+                total += price * qty;
+                return {
+                    code: item.id || '',
+                    name: item.name || '',
+                    quantity: qty,
+                    price: price,
+                    size: item.size || '',
+                    color: item.color || ''
+                };
+            });
+
+            const discount = parseFloat(localStorage.getItem('cottonusa_discount') || '0');
+            total = total - discount;
+            if (total < 0) total = 0;
+
+            // Lưu dữ liệu đơn hàng vào localStorage
+            const orderData = {
+                order_code: '',
+                customer: customerInfo,
+                items: items,
+                total: total
+            };
+            localStorage.setItem('cottonusa_order_data', JSON.stringify(orderData));
+
+            fetch('api/create-order.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: customerInfo.name,
+                    phone: customerInfo.phone,
+                    address: customerInfo.address,
+                    payment_method: paymentMethod,
+                    total_amount: total,
+                    items: items
+                })
+            })
+            .then(response => {
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    return response.text().then(text => {
+                        throw new Error('Server trả về HTML: ' + text.substring(0, 100));
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // Cập nhật order code
+                    const savedOrder = JSON.parse(localStorage.getItem('cottonusa_order_data') || '{}');
+                    savedOrder.order_code = data.order_code;
+                    localStorage.setItem('cottonusa_order_data', JSON.stringify(savedOrder));
+                    
+                    localStorage.removeItem('cottonusa_cart');
+                    localStorage.removeItem('cottonusa_order');
+                    resolve(data);
+                } else {
+                    showToast('❌ ' + data.message, 'error');
+                    reject(data.message);
+                }
+            })
+            .catch(error => {
+                showToast('❌ Lỗi: ' + error.message, 'error');
+                console.error('Error:', error);
+                reject(error);
+            });
+        });
+    }
+
+    // ================= MODAL =================
+    function closeModal(id) {
+        document.getElementById(id).classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    function openSuccessModal() {
+        const orderData = JSON.parse(localStorage.getItem('cottonusa_order_data') || '{}');
+        const { order_code, customer, items, total } = orderData;
+        
+        let itemsHtml = '';
+        if (items && items.length > 0) {
+            items.forEach(item => {
+                const subtotal = (item.price || 0) * (item.quantity || 1);
+                itemsHtml += `<div>• ${item.name} (x${item.quantity}) - ${subtotal.toLocaleString()}đ</div>`;
+            });
+        } else {
+            itemsHtml = '<div style="color:#999;">Không có sản phẩm</div>';
+        }
+        
+        document.getElementById('orderInfo').innerHTML = `
+            <div><span>Mã đơn hàng:</span> ${order_code || 'Đang xử lý...'}</div>
+            <div><span>Họ tên:</span> ${customer?.name || 'Khách lẻ'}</div>
+            <div><span>Địa chỉ:</span> ${customer?.address || 'Chưa cập nhật'}</div>
+            <div><span>Sản phẩm:</span> ${itemsHtml}</div>
+            <div><span>Tổng tiền:</span> <span class="total">${(total || 0).toLocaleString()}đ</span></div>
+        `;
+        
+        document.getElementById('modalSuccess').classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function openQRModal(orderCode, total) {
+        const content = `COTTONUSA-${orderCode}`;
+        
+        document.getElementById('qrAmount').textContent = total.toLocaleString() + 'đ';
+        document.getElementById('qrContent').textContent = content;
+        
+        const bankId = '970422';
+        const accountNo = '2003082004';
+        const accountName = 'LE MINH QUAN';
+        const template = 'compact2';
+        const qrUrl = `https://img.vietqr.io/image/${bankId}-${accountNo}-${template}.png?amount=${total}&addInfo=${encodeURIComponent(content)}&accountName=${encodeURIComponent(accountName)}`;
+        
+        const qrImgWrap = document.getElementById('qrImgWrap');
+        qrImgWrap.innerHTML = `<img src="${qrUrl}" alt="QR Code">`;
+        
+        document.getElementById('modalQR').classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    // ================= XỬ LÝ THANH TOÁN =================
+    document.getElementById('btnTiepTucThanhToan').addEventListener('click', async function() {
+        const isCOD = document.getElementById('thanhtoankhinhanhang').checked;
+        const isTransfer = document.getElementById('chuyenkhoan').checked;
+
+        if (!isCOD && !isTransfer) {
+            showToast('Vui lòng chọn phương thức thanh toán!', 'error');
+            return;
+        }
+
+        const paymentMethod = isCOD ? 'cod' : 'bank';
+        
+        const btn = this;
+        const originalText = btn.textContent;
+        btn.innerHTML = '<span class="loading-spinner"></span> ĐANG XỬ LÝ...';
+        btn.disabled = true;
+        
+        try {
+            const result = await createOrder(paymentMethod);
+            const orderData = JSON.parse(localStorage.getItem('cottonusa_order_data') || '{}');
+            
+            if (isCOD) {
+                openSuccessModal();
+            } else {
+                openQRModal(result.order_code, orderData.total || 0);
+            }
+            
+            localStorage.removeItem('cottonusa_customer_info');
+            
+        } catch (error) {
+            console.error('Error:', error);
+        } finally {
+            btn.textContent = originalText;
+            btn.disabled = false;
+        }
+    });
+
+    // ================= ÁP DỤNG MÃ GIẢM GIÁ =================
+    document.getElementById('applyDiscountBtn').addEventListener('click', function() {
+        const code = document.getElementById('discountCode').value.trim();
+        if (code === 'COTTON10') {
+            const total = calculateTotal();
+            const discount = total * 0.1;
+            localStorage.setItem('cottonusa_discount', discount);
+            updateTotalDisplay();
+            showToast('✅ Áp dụng mã giảm giá 10% thành công!', 'success');
+        } else if (code === 'FREESHIP') {
+            localStorage.setItem('cottonusa_discount', 30000);
+            updateTotalDisplay();
+            showToast('✅ Áp dụng mã giảm giá 30.000đ thành công!', 'success');
+        } else if (code) {
+            showToast('❌ Mã giảm giá không hợp lệ!', 'error');
+        }
+    });
+
+    // ================= CHECK PAYMENT STATUS =================
+    function checkPaymentStatus() {
+        closeModal('modalQR');
+        showToast('✅ Thanh toán thành công! Đơn hàng sẽ được xử lý.', 'success');
+        setTimeout(() => {
+            window.location.href = 'index.html';
+        }, 2000);
+    }
+
+    // ================= INIT =================
+    document.addEventListener('DOMContentLoaded', function() {
+        updateTotalDisplay();
+        
+        const customerInfo = JSON.parse(localStorage.getItem('cottonusa_customer_info') || '{}');
+        if (!customerInfo.name || !customerInfo.phone || !customerInfo.address) {
+            if (confirm('Bạn chưa nhập thông tin giao hàng. Chuyển đến trang nhập thông tin?')) {
+                window.location.href = 'giaohang.html';
+            }
+        }
+        
+        const cart = getCart();
+        const badge = document.getElementById('cartBadge');
+        if (badge) {
+            const totalItems = cart.reduce((sum, item) => sum + (item.qty || 1), 0);
+            badge.textContent = totalItems;
+            badge.style.display = totalItems > 0 ? 'flex' : 'none';
+        }
+    });
+
+    // ================= AUTH FUNCTIONS =================
+    window.switchTab = function(tab) {
+        const loginPanel = document.getElementById('panelLogin');
+        const registerPanel = document.getElementById('panelRegister');
+        if (tab === 'login') {
+            loginPanel.style.display = 'block';
+            registerPanel.style.display = 'none';
+        } else {
+            loginPanel.style.display = 'none';
+            registerPanel.style.display = 'block';
+        }
+    };
+    
+    window.doLogin = function() {
+        const email = document.getElementById('loginEmail')?.value.trim();
+        const password = document.getElementById('loginPassword')?.value.trim();
+        if (!email || !password) {
+            showToast('Vui lòng nhập email và mật khẩu', 'error');
+            return;
+        }
+        showToast('✅ Đăng nhập thành công!', 'success');
+        location.reload();
+    };
+    
+    window.doRegister = function() {
+        const name = document.getElementById('regName')?.value.trim();
+        const email = document.getElementById('regEmail')?.value.trim();
+        const password = document.getElementById('regPassword')?.value.trim();
+        if (!name || !email || !password) {
+            showToast('Vui lòng nhập đầy đủ thông tin', 'error');
+            return;
+        }
+        showToast('✅ Đăng ký thành công!', 'success');
+        location.reload();
+    };
+    
+    window.doLogout = function() {
+        showToast('Đã đăng xuất', 'info');
+        location.reload();
+    };
+
+    // ================= TÌM KIẾM =================
+    document.getElementById('searchInput')?.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            const keyword = this.value.trim();
+            if (keyword !== '') {
+                window.location.href = 'search-results.html?q=' + encodeURIComponent(keyword);
+            }
+        }
+    });
+</script>
+</body>
+</html>

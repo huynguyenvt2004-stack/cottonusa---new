@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <title>Giao hàng - Cotton USA</title>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <img src="images/logo.avif" alt="Cotton USA">
+        </div>
+        <ul class="MENU">
+            <li><a href="index.html">TRANG CHỦ</a></li>
+            <li class="has-submenu">
+                <a href="quan.html">QUẦN <span class="arrow">▼</span></a>
+                <ul class="sub-menu">
+                    <li><a href="quan.html?type=ong-suong">Quần Ống Suông</a></li>
+                    <li><a href="quan.html?type=jogger">Quần Jogger</a></li>
+                </ul>
+            </li>
+            <li class="has-submenu">
+                <a href="sweater.html">SWEATERS <span class="arrow">▼</span></a>
+                <ul class="sub-menu">
+                    <li><a href="sweater.html?id=US001">University Sweater</a></li>
+                    <li><a href="sweater.html?id=CS001">Car Sweater</a></li>
+                    <li><a href="sweater.html?id=FS001">Floral Sweater</a></li>
+                </ul>
+            </li>
+            <li class="has-submenu">
+                <a href="hoodies.html">HOODIES <span class="arrow">▼</span></a>
+                <ul class="sub-menu">
+                    <li><a href="hoodies.html?id=BH001">Basic Hoodie</a></li>
+                    <li><a href="hoodies.html?id=PH001">Porsche Hoodie</a></li>
+                    <li><a href="hoodies.html?id=USAH001">USA Hoodie</a></li>
+                </ul>
+            </li>
+            <li class="has-submenu"><a href="aothundaitay.html">ÁO THUN <span class="arrow">▼</span></a>
+                <ul class="sub-menu">
+                    <li><a href="aothun.html">Áo Thun ngắn tay <span class="arrow">▼</span></a>
+                        <ul class="sub-menu">
+                            <li><a href="aothun.html?id=W001">Áo Thun Watch</a></li>
+                            <li><a href="aothun.html?id=POR001">Áo Thun Poscher</a></li>
+                            <li><a href="aothun.html?id=USA001">Áo Thun USA</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="aothundaitay.html">Áo Thun dài tay <span class="arrow">▼</span></a>
+                        <ul class="sub-menu">
+                            <li><a href="aothundaitay.html?id=RP001">Áo Thun Dài Tay Rapper</a></li>
+                            <li><a href="aothundaitay.html?id=POR001">Áo Thun Dài Tay Poscher</a></li>
+                            <li><a href="aothundaitay.html?id=USA001">Áo Thun Dài Tay USA</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+        <div class="other">
+            <div class="search-icon">
+                <input type="text" placeholder="Tìm kiếm sản phẩm...">
+                <i class="fas fa-search"></i>
+            </div>
+            <div class="cart-wrapper">
+                <button class="cart-icon-btn" id="cartBtn">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span class="cart-badge" id="cartBadge">0</span>
+                </button>
+                <div class="cart-dropdown" id="cartDropdown">
+                    <div class="cart-dropdown-header">
+                        <span>Giỏ hàng</span>
+                        <span id="cartItemCount">0 sản phẩm</span>
+                    </div>
+                    <div class="cart-items-list" id="cartItemsList">
+                        <div class="cart-empty-msg">
+                            <i class="fas fa-shopping-bag"></i>
+                            Giỏ hàng trống
+                        </div>
+                    </div>
+                    <div class="cart-dropdown-footer" id="cartFooter" style="display:none">
+                        <div class="cart-total-row">
+                            <span>Tổng cộng:</span>
+                            <span class="cart-total-amount" id="cartTotal">0₫</span>
+                        </div>
+                        <button class="cart-checkout-btn" onclick="checkout()">Thanh toán ngay →</button>
+                    </div>
+                </div>
+            </div>
+            <div class="auth-wrapper">
+                <button class="auth-icon-btn" id="authBtn"><i class="fas fa-user"></i></button>
+                <div class="auth-dropdown" id="authDropdown">
+                    <div id="authLoggedOut">
+                        <div class="auth-tabs"><button class="auth-tab active" onclick="switchTab('login')">Đăng nhập</button><button class="auth-tab" onclick="switchTab('register')">Đăng ký</button></div>
+                        <div class="auth-form-panel" id="panelLogin">
+                            <div class="auth-error" id="loginError"></div>
+                            <div class="auth-field"><label>Email</label><input type="email" id="loginEmail" placeholder="example@email.com"></div>
+                            <div class="auth-field"><label>Mật khẩu</label><input type="password" id="loginPassword" placeholder="••••••••"></div>
+                            <button class="auth-submit-btn" onclick="doLogin()">Đăng nhập</button>
+                        </div>
+                        <div class="auth-form-panel" id="panelRegister" style="display:none">
+                            <div class="auth-error" id="registerError"></div>
+                            <div class="auth-field"><label>Họ tên</label><input type="text" id="regName" placeholder="Nguyễn Văn A"></div>
+                            <div class="auth-field"><label>Email</label><input type="email" id="regEmail" placeholder="example@email.com"></div>
+                            <div class="auth-field"><label>Mật khẩu</label><input type="password" id="regPassword" placeholder="Tối thiểu 6 ký tự"></div>
+                            <button class="auth-submit-btn" onclick="doRegister()">Tạo tài khoản</button>
+                        </div>
+                    </div>
+                    <div id="authLoggedIn" style="display:none">
+                        <div class="auth-avatar" id="authAvatar">A</div>
+                        <div class="auth-username" id="authUsername"></div>
+                        <div class="auth-useremail" id="authUserEmail"></div>
+                        <button class="auth-logout-btn" onclick="doLogout()">Đăng xuất</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <div class="dropdown-overlay" id="dropdownOverlay"></div>
+
+    <section class="giaohang">
+        <div class="container">
+            <div class="giaohang-top-wrap">
+                <div class="giaohang-top">
+                    <div class="giaohang-top-item">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <div class="giaohang-top-adress giaohang-top-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <div class="giaohang-top-payment giaohang-top-item">
+                        <i class="fas fa-money-check-alt"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="giaohang-content">
+                <div class="giaohang-content-left">
+                    <p>Vui lòng điền thông tin giao hàng</p>
+                    <div class="giaohang-content-left-dangnhap">
+                        <i class="fas fa-sign-in-alt"></i>
+                        <p>Đăng nhập (nếu có tài khoản)</p>
+                    </div>
+                    <div class="giaohang-content-left-khachle">
+                        <input checked name="loaikhach" type="radio" value="khachle">
+                        <p><span style="font-weight: bold;">Khách lẻ</span> (Nếu bạn muốn lưu lại thông tin)</p>
+                    </div>
+                    <div class="giaohang-content-left-dangky">
+                        <input name="loaikhach" type="radio" value="dangky">
+                        <p><span style="font-weight: bold;">Đăng ký</span> (Tạo mới tài khoản với thông tin bên dưới)</p>
+                    </div>
+                    <div class="giaohang-content-left-thongtin-top">
+    <div class="giaohang-content-left-thongtin-top-item">
+        <label>Họ tên<span style="color:red;">*</span></label>
+        <input type="text" id="customerName">
+    </div>
+
+
+<div class="giaohang-content-left-thongtin-top-item">
+    <label>Số điện thoại<span style="color:red;">*</span></label>
+    <input type="text" id="customerPhone">
+</div>
+
+<div class="giaohang-content-left-thongtin-top-item">
+    <label>Tỉnh/Thành Phố<span style="color:red;">*</span></label>
+    <input type="text" id="customerCity">
+</div>
+
+<div class="giaohang-content-left-thongtin-top-item">
+    <label>Phường/Xã<span style="color:red;">*</span></label>
+    <input type="text" id="customerWard">
+</div>
+
+<div class="giaohang-content-left-thongtin-top-item full">
+    <label>Địa chỉ<span style="color:red;">*</span></label>
+    <input type="text" id="customerAddress">
+</div>
+
+
+</div>
+
+                    <div class="giaohang-content-left-button">
+                        <a href="muahang.html"><span>&#171;</span> Quay lại giỏ hàng</a>
+                        <button id="btnGoPayment">
+    THANH TOÁN VÀ GIAO HÀNG
+</button>
+                    </div>
+                </div>
+                <div class="giaohang-content-right">
+                    <table>
+                        <thead><tr><th>Sản phẩm</th><th>Đơn giá</th><th>Số lượng</th><th>Thành tiền</th></tr></thead>
+                        <tbody id="cartOrderItems"><tr><td colspan="4" style="text-align:center;">Đang tải...</td></tr></tbody>
+                        <tfoot id="cartOrderTotal"><tr><td colspan="3" style="font-weight: bold;">Tổng cộng:</td><td style="font-weight: bold; text-align: right;">0₫</td></tr></tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="contact">
+        <h2>Liên hệ với chúng tôi</h2>
+        <div class="social-group">
+            <a href="https://web.facebook.com/03.august4/" target="_blank"><img src="images/Facebook.jpeg" alt="Facebook"></a>
+            <a href="https://www.instagram.com/ming.quann" target="_blank"><img src="images/instagram.jpeg" alt="Instagram"></a>
+            <a href="https://www.tiktok.com/@03_august4" target="_blank"><img src="images/tiktok.jpeg" alt="TikTok"></a>
+        </div>
+        <h3>Nhận bản tin của chúng tôi</h3>
+        <form class="newsletter-form"><input type="email" class="newsletter-input" placeholder="Nhập email của bạn..."><button type="submit" class="submit-btn">→</button></form>
+    </section>
+
+    <div class="footer-top">
+        <div class="footer-column">
+            <h4>Thông tin</h4>
+            <ul>
+                <li><a href="#">About us</a></li>
+                <li><a href="#">Liên hệ chúng tôi</a></li>
+            </ul>
+        </div>
+        <div class="footer-column">
+            <h4>Hỗ trợ khách hàng</h4>
+            <ul>
+                <li><a href="#">Chính sách đổi trả & bảo hành</a></li>
+                <li><a href="#">Chính sách vận chuyển</a></li>
+                <li><a href="#">Điều khoản dịch vụ</a></li>
+                <li><a href="#">Chính sách bảo mật</a></li>
+            </ul>
+        </div>
+        <div class="footer-column">
+            <h4>Dịch vụ khách hàng</h4>
+            <ul>
+                <li>Hotline: 0865943240</li>
+                <li>Email: mingquan2004@gmail.com</li>
+                <li>Thứ Hai - Thứ 7</li>
+                <li>08:00 ~ 22:00</li>
+            </ul>
+        </div>
+    </div>
+
+    <script src="js/cart-auth.js"></script>
+    <script>
+        // ================= Giỏ hàng và đăng nhập =================//
+        (function initHeaderDropdowns() {
+            const cartBtn = document.getElementById('cartBtn');
+            const cartDropdown = document.getElementById('cartDropdown');
+            const authBtn = document.getElementById('authBtn');
+            const authDropdown = document.getElementById('authDropdown');
+            const overlay = document.getElementById('dropdownOverlay');
+
+            if (!cartBtn || !cartDropdown || !authBtn || !authDropdown || !overlay) return;
+
+            function closeAll() {
+                cartDropdown.classList.remove('open');
+                authDropdown.classList.remove('open');
+                overlay.classList.remove('active');
+            }
+
+            cartBtn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                const isOpen = cartDropdown.classList.contains('open');
+                closeAll();
+                if (!isOpen) {
+                    cartDropdown.classList.add('open');
+                    overlay.classList.add('active');
+                }
+            });
+
+            authBtn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                const isOpen = authDropdown.classList.contains('open');
+                closeAll();
+                if (!isOpen) {
+                    authDropdown.classList.add('open');
+                    overlay.classList.add('active');
+                }
+            });
+
+            cartDropdown.addEventListener('click', function (e) { e.stopPropagation(); });
+            authDropdown.addEventListener('click', function (e) { e.stopPropagation(); });
+
+            overlay.addEventListener('click', function () { closeAll(); });
+            document.addEventListener('click', function () { closeAll(); });
+        })();
+
+        // Hiển thị đơn hàng từ giỏ
+        var cartItems = getCart();
+        // Xóa dữ liệu checkout cũ nếu có (tránh hiển thị sản phẩm cũ)
+        if (localStorage.getItem('cottonusa_checkout')) {
+        localStorage.removeItem('cottonusa_checkout');
+        }
+        
+        var tbody = document.getElementById('cartOrderItems');
+        var totalSpan = document.getElementById('cartOrderTotal');
+        var total = 0;
+        
+        if (cartItems && cartItems.length > 0) {
+            var html = '';
+            for (var i = 0; i < cartItems.length; i++) {
+                var item = cartItems[i];
+                var subtotal = item.price * item.qty;
+                total += subtotal;
+                html += '<tr>'
+                    + '<td>' + item.name + (item.size ? ' (Size: ' + item.size + ')' : '') + (item.color ? ' - ' + item.color : '') + '</td>'
+                    + '<td>' + formatPrice(item.price) + '</td>'
+                    + '<td>' + item.qty + '</td>'
+                    + '<td>' + formatPrice(subtotal) + '</td>'
+                    + '</tr>';
+            }
+            tbody.innerHTML = html;
+            totalSpan.innerHTML = '<tr><td colspan="3" style="font-weight: bold;">Tổng cộng:</td><td style="font-weight: bold; text-align: right;">' + formatPrice(total) + '</td></tr>';
+        } else {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Giỏ hàng trống</td></tr>';
+        }
+    </script>
+    <script>
+document.getElementById('btnGoPayment').addEventListener('click', function () {
+
+    const name = document.getElementById('customerName').value.trim();
+    const phone = document.getElementById('customerPhone').value.trim();
+    const city = document.getElementById('customerCity').value.trim();
+    const ward = document.getElementById('customerWard').value.trim();
+    const address = document.getElementById('customerAddress').value.trim();
+
+    if (!name || !phone || !city || !ward || !address) {
+        alert('Vui lòng nhập đầy đủ thông tin giao hàng');
+        return;
+    }
+
+    localStorage.setItem(
+        'cottonusa_customer_info',
+        JSON.stringify({
+            name: name,
+            phone: phone,
+            address: address + ', ' + ward + ', ' + city
+        })
+    );
+
+    window.location.href = 'chuyentien.html';
+});
+</script>
+</body>
+</html>

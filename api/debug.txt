@@ -1,0 +1,21 @@
+Array
+(
+    [name] => Tuấn Trịnh Anh
+    [phone] => 1234556788
+    [address] => 123 cv2, gia lâm, hn
+    [payment_method] => cod
+    [items] => Array
+        (
+            [0] => Array
+                (
+                    [code] => WDX300
+                    [name] => Watch Doxa X300
+                    [quantity] => 1
+                    [price] => 189000
+                    [size] => L
+                    [color] => Đen
+                )
+
+        )
+
+)

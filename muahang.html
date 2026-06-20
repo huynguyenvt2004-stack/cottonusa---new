@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <title>Chi tiết sản phẩm - Cotton USA</title>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <img src="images/logo.avif" alt="Cotton USA">
+        </div>
+        <ul class="MENU">
+            <li><a href="index.html">TRANG CHỦ</a></li>
+            <li class="has-submenu">
+                <a href="quan.html">QUẦN <span class="arrow">▼</span></a>
+                <ul class="sub-menu">
+                    <li><a href="quan.html?type=ong-suong">Quần Ống Suông</a></li>
+                    <li><a href="quan.html?type=jogger">Quần Jogger</a></li>
+                </ul>
+            </li>
+            <li class="has-submenu">
+                <a href="sweater.html">SWEATERS <span class="arrow">▼</span></a>
+                <ul class="sub-menu"><li>
+                    <a href="sweater.html?id=US001">University Sweater</a>
+                </li><li><a href="sweater.html?id=CS001">Car Sweater</a></li>
+                <li><a href="sweater.html?id=FS001">Floral Sweater</a></li>
+            </ul>
+            </li>
+            <li class="has-submenu"><a href="hoodies.html">HOODIES <span class="arrow">▼</span></a>
+                <ul class="sub-menu"><li>
+                    <a href="hoodies.html?id=BH001">Basic Hoodie</a></li>
+                    <li><a href="hoodies.html?id=PH001">Porsche Hoodie</a></li>
+                    <li><a href="hoodies.html?id=USAH001">USA Hoodie</a></li>
+                </ul>
+            </li>
+            <li class="has-submenu"><a href="aothundaitay.html">ÁO THUN <span class="arrow">▼</span></a>
+                <ul class="sub-menu">
+                    <li><a href="aothun.html">Áo Thun ngắn tay <span class="arrow">▼</span></a>
+                        <ul class="sub-menu"><li>
+                            <a href="aothun.html?id=W001">Áo Thun Watch</a></li>
+                            <li><a href="aothun.html?id=POR001">Áo Thun Poscher</a></li>
+                            <li><a href="aothun.html?id=USA001">Áo Thun USA</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="aothundaitay.html">Áo Thun dài tay <span class="arrow">▼</span></a>
+                        <ul class="sub-menu"><li>
+                            <a href="aothundaitay.html?id=RP001">Áo Thun Dài Tay Rapper</a></li>
+                            <li><a href="aothundaitay.html?id=POR001">Áo Thun Dài Tay Poscher</a></li>
+                            <li><a href="aothundaitay.html?id=USA001">Áo Thun Dài Tay USA</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+        <div class="other">
+            <div class="search-icon">
+                <input type="text" placeholder="Tìm kiếm sản phẩm...">
+                <i class="fas fa-search"></i>
+            </div>
+            <div class="cart-wrapper">
+                <button class="cart-icon-btn" id="cartBtn" aria-label="Giỏ hàng">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span class="cart-badge" id="cartBadge">0</span>
+                </button>
+                <div class="cart-dropdown" id="cartDropdown">
+                    <div class="cart-dropdown-header">
+                        <span>Giỏ hàng</span>
+                        <span id="cartItemCount">0 sản phẩm</span>
+                    </div>
+                    <div class="cart-items-list" id="cartItemsList">
+                        <div class="cart-empty-msg"><i class="fas fa-shopping-bag"></i>Giỏ hàng trống</div>
+                    </div>
+                    <div class="cart-dropdown-footer" id="cartFooter" style="display:none">
+                        <div class="cart-total-row">
+                            <span>Tổng cộng:</span>
+                            <span class="cart-total-amount" id="cartTotal">0₫</span>
+                        </div>
+                        <button class="cart-checkout-btn" onclick="window.checkout()">Thanh toán ngay →</button>
+                    </div>
+                </div>
+            </div>
+            <div class="auth-wrapper">
+                <button class="auth-icon-btn" id="authBtn" aria-label="Tài khoản">
+                    <i class="fas fa-user"></i>
+                </button>
+                <div class="auth-dropdown" id="authDropdown">
+                    <div id="authLoggedOut">
+                        <div class="auth-tabs">
+                            <button class="auth-tab active" onclick="switchTab('login')">Đăng nhập</button>
+                            <button class="auth-tab" onclick="switchTab('register')">Đăng ký</button>
+                        </div>
+                        <div class="auth-form-panel" id="panelLogin">
+                            <div class="auth-error" id="loginError"></div>
+                            <div class="auth-field">
+                                <label>Email</label>
+                                <input type="email" id="loginEmail" placeholder="example@email.com">
+                            </div>
+                            <div class="auth-field">
+                                <label>Mật khẩu</label>
+                                <input type="password" id="loginPassword" placeholder="••••••••">
+                            </div>
+                            <button class="auth-submit-btn" onclick="doLogin()">Đăng nhập</button>
+                        </div>
+                        <div class="auth-form-panel" id="panelRegister" style="display:none">
+                            <div class="auth-error" id="registerError"></div>
+                            <div class="auth-field">
+                                <label>Họ tên</label>
+                                <input type="text" id="regName" placeholder="Nguyễn Văn A">
+                            </div>
+                            <div class="auth-field">
+                                <label>Email</label>
+                                <input type="email" id="regEmail" placeholder="example@email.com">
+                            </div>
+                            <div class="auth-field">
+                                <label>Mật khẩu</label>
+                                <input type="password" id="regPassword" placeholder="Tối thiểu 6 ký tự">
+                            </div>
+                            <button class="auth-submit-btn" onclick="doRegister()">Tạo tài khoản</button>
+                        </div>
+                    </div>
+                    <div id="authLoggedIn" style="display:none">
+                        <div class="auth-avatar" id="authAvatar">A</div>
+                        <div class="auth-username" id="authUsername"></div>
+                        <div class="auth-useremail" id="authUserEmail"></div>
+                        <button class="auth-logout-btn" onclick="doLogout()">Đăng xuất</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <div class="dropdown-overlay" id="dropdownOverlay"></div>
+
+    <section class="muahang">
+        <div class="container">
+            <div class="muahang-top row">
+                <p id="productBreadcrumbCat">Sweater</p> <span>&#10230;</span> <p id="productBreadcrumb">Sản phẩm</p>
+            </div>
+            <div class="muahang-content row">
+                <div class="muahang-content-left row">
+                    <div class="muahang-content-left-big-img">
+                        <img id="mainProductImage" src="quan/quanongsuong.webp" alt="Quần Ống Suông Nỉ Bông Cotton USA Basic">
+                    </div>
+                </div>
+                <div class="muahang-content-right">
+                    <div class="muahang-content-right-name">
+                        <h1 id="productName">Quần Ống Suông Nỉ Bông Cotton USA Basic</h1>
+                        <p class="ma-san-pham" id="productSku">MSP: QOS001</p>
+                    </div>
+                    <div class="muahang-content-right-muahang-price">
+                        <p id="productPrice">391.000<sup>₫</sup></p>
+                    </div>
+                    <div class="muahang-content-right-muahang-color">
+                        <p style="font-weight: bold; margin-bottom: 8px;">Màu sắc: <span class="required">*</span></p>
+                        <div class="color-swatches" id="colorSwatches"></div>
+                        <p style="font-size: 13px; margin-top: 6px; color: #555;">
+                            Đang chọn: <span id="selectedColorName">Đen</span>
+                        </p>
+                    </div>
+                    <div class="muahang-content-right-muahang-size">
+                        <p style="font-weight: bold;">Size</p>
+                        <div class="Size">
+                            <span>S</span>
+                            <span>M</span>
+                            <span>L</span>
+                            <span>XL</span>
+                            <span>XXL</span>
+                            <span>XXXL</span>
+                        </div>
+                    </div>
+                    <div class="quantily">
+                        <p style="font-weight: bold;">Số lượng:</p>
+                        <input type="number" min="1" value="1" id="quantityInput">
+                        <p class="size-warning" id="sizeWarning">Vui lòng chọn size <span class="required">*</span></p>
+                    </div>
+                    <div class="muahang-content-right-muahang-button">
+                        <button class="btn-mua" id="btnThem">THÊM VÀO GIỎ HÀNG</button>
+                        <button class="btn-mua" id="btnMua">MUA HÀNG</button>
+                    </div>
+                    <div class="support-shortcuts">
+                        <div class="support-item"><i class="fas fa-phone-alt"></i><span>Hotline</span></div>
+                        <div class="support-item"><i class="fas fa-comment-dots"></i><span>Chat</span></div>
+                        <div class="support-item"><i class="fas fa-envelope"></i><span>Mail</span></div>
+                    </div>
+                    <div class="muahang-content-right-bottom-content-title-item">
+                        <p>Tham khảo size</p>
+                        <img id="sizeChartImage" src="images/sizequan.webp" alt="Bảng size tham khảo" style="max-width: 100%; border-radius: 8px;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="contact">
+        <h2>Liên hệ với chúng tôi</h2>
+        <div class="social-group">
+            <a href="https://web.facebook.com/03.august4/" target="_blank"><img src="images/Facebook.jpeg" alt="Facebook"></a>
+            <a href="https://www.instagram.com/ming.quann" target="_blank"><img src="images/instagram.jpeg" alt="Instagram"></a>
+            <a href="https://www.tiktok.com/@03_august4" target="_blank"><img src="images/tiktok.jpeg" alt="TikTok"></a>
+        </div>
+        <h3>Nhận bản tin của chúng tôi</h3>
+        <form class="newsletter-form">
+            <input type="email" class="newsletter-input" placeholder="Nhập email của bạn...">
+            <button type="submit" class="submit-btn">→</button>
+        </form>
+    </section>
+
+    <div class="footer-top">
+        <div class="footer-column">
+            <h4>Thông tin</h4>
+            <ul>
+                <li><a href="#">About us</a></li>
+                <li><a href="#">Liên hệ chúng tôi</a></li>
+            </ul>
+        </div>
+        <div class="footer-column">
+            <h4>Hỗ trợ khách hàng</h4>
+            <ul>
+                <li><a href="#">Chính sách đổi trả & bảo hành</a></li>
+                <li><a href="#">Chính sách vận chuyển</a></li>
+                <li><a href="#">Điều khoản dịch vụ</a></li>
+                <li><a href="#">Chính sách bảo mật</a></li>
+            </ul>
+        </div>
+        <div class="footer-column">
+            <h4>Dịch vụ khách hàng</h4>
+            <ul>
+                <li>Hotline: 0865943240</li>
+                <li>Email: mingquan2004@gmail.com</li>
+                <li>Thứ Hai - Thứ 7</li>
+                <li>08:00 ~ 22:00</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Load cart và auth logic -->
+    <script src="js/cart-auth.js"></script>
+    <script src="js/custom-alert.js"></script>
+
+    <!-- Dữ liệu sản phẩm -->
+    <script>
+const products = {
+    /* ══════════════ QUẦN ══════════════ */
+    "QOS001": {
+        category: "Quần",
+        name: "Quần Ống Suông Nỉ Bông Cotton USA Basic",
+        sku: "MSP: QOS001",
+        price: "391.000",
+        mainImage: "quan/quanongsuong.webp",
+        sizeChart: "images/sizequan.webp",
+        colors: [
+            { name: "Đen",   image: "quan/quanongsuong.webp",      large: "quan/quanongsuong.webp" },
+            { name: "Kem",   image: "quan/quanongsuongkem.webp",   large: "quan/quanongsuongkem.webp" },
+            { name: "Trắng", image: "quan/quanongsuongtrang.webp", large: "quan/quanongsuongtrang.webp" }
+        ]
+    },
+    "QOJ001": {
+        category: "Quần",
+        name: "Quần Jogger Nỉ Bông Cotton USA Basic",
+        sku: "MSP: QOJ001",
+        price: "390.000",
+        mainImage: "quan/quanjoggerxamtieu.webp",
+        sizeChart: "images/sizequan.webp",
+        colors: [
+            { name: "Xám tiêu", image: "quan/quanjoggerxamtieu.webp", large: "quan/quanjoggerxamtieu.webp" },
+            { name: "Đen",      image: "quan/quanjoggerden.webp",      large: "quan/quanjoggerden.webp" },
+            { name: "Kem",      image: "quan/quanjoggerkem.webp",       large: "quan/quanjoggerkem.webp" }
+        ]
+    },
+
+    /* ══════════════ SWEATER ══════════════ */
+    "HUST001": {
+        category: "Sweater",
+        name: "HUST University Sweater",
+        sku: "MSP: HUST001",
+        price: "399.000",
+        mainImage: "sweater/HUSTsweaterden.webp",
+        sizeChart: "images/sizesweater.webp",
+        colors: [
+            { name: "Đen",   image: "sweater/HUSTsweaterden.webp",   large: "sweater/HUSTsweaterden.webp" },
+            { name: "Trắng", image: "sweater/HUSTsweatertrang.webp", large: "sweater/HUSTsweatertrang.webp" },
+            { name: "Hồng",  image: "sweater/HUSTsweaterhong.webp",  large: "sweater/HUSTsweaterhong.webp" }
+        ]
+    },
+    "NEU001": {
+        category: "Sweater",
+        name: "NEU University Sweater",
+        sku: "MSP: NEU001",
+        price: "399.000",
+        mainImage: "sweater/NEUsweaterden.webp",
+        sizeChart: "images/sizesweater.webp",
+        colors: [
+            { name: "Đen",   image: "sweater/NEUsweaterden.webp",   large: "sweater/NEUsweaterden.webp" },
+            { name: "Trắng", image: "sweater/NEUsweatertrang.webp", large: "sweater/NEUsweatertrang.webp" },
+            { name: "Hồng",  image: "sweater/NEUsweaterhong.webp",  large: "sweater/NEUsweaterhong.webp" }
+        ]
+    },
+    "RMIT001": {
+        category: "Sweater",
+        name: "RMIT University Sweater",
+        sku: "MSP: RMIT001",
+        price: "399.000",
+        mainImage: "sweater/RMITsweaterden.webp",
+        sizeChart: "images/sizesweater.webp",
+        colors: [
+            { name: "Đen",       image: "sweater/RMITsweaterden.webp",   large: "sweater/RMITsweaterden.webp" },
+            { name: "Trắng",     image: "sweater/RMITsweatertrang.webp", large: "sweater/RMITsweatertrang.webp" },
+            { name: "Xanh navy", image: "sweater/RMITsweaternavy.webp",  large: "sweater/RMITsweaternavy.webp" }
+        ]
+    },
+    "PORSCHE001": {
+        category: "Sweater",
+        name: "Porsche 911 GT3RS Sweater",
+        sku: "MSP: PORSCHE001",
+        price: "399.000",
+        mainImage: "sweater/Porschesweaterden.webp",
+        sizeChart: "images/sizesweater.webp",
+        colors: [
+            { name: "Đen",   image: "sweater/Porschesweaterden.webp",   large: "sweater/Porschesweaterden.webp" },
+            { name: "Trắng", image: "sweater/Porschesweatertrang.webp", large: "sweater/Porschesweatertrang.webp" },
+            { name: "Hồng",  image: "sweater/Porschesweaterhong.webp",  large: "sweater/Porschesweaterhong.webp" }
+        ]
+    },
+    "BMW001": {
+        category: "Sweater",
+        name: "BMW M3 Competition Sweater",
+        sku: "MSP: BMW001",
+        price: "399.000",
+        mainImage: "sweater/BMWsweaterden.webp",
+        sizeChart: "images/sizesweater.webp",
+        colors: [
+            { name: "Đen",      image: "sweater/BMWsweaterden.webp",      large: "sweater/BMWsweaterden.webp" },
+            { name: "Trắng",    image: "sweater/BMWsweatertrang.webp",    large: "sweater/BMWsweatertrang.webp" },
+            { name: "Xám Tiêu", image: "sweater/BMWsweaterxamtieu.webp",  large: "sweater/BMWsweaterxamtieu.webp" }
+        ]
+    },
+    "MERCEDES001": {
+        category: "Sweater",
+        name: "Mercedes Sweater",
+        sku: "MSP: MERCEDES001",
+        price: "399.000",
+        mainImage: "sweater/Mercedessweaterden.webp",
+        sizeChart: "images/sizesweater.webp",
+        colors: [
+            { name: "Đen",   image: "sweater/Mercedessweaterden.webp",   large: "sweater/Mercedessweaterden.webp" },
+            { name: "Trắng", image: "sweater/Mercedessweatertrang.webp", large: "sweater/Mercedessweatertrang.webp" },
+            { name: "Kem",   image: "sweater/Mercedessweaterkem.webp",   large: "sweater/Mercedessweaterkem.webp" }
+        ]
+    },
+    "FLORAL001": {
+        category: "Sweater",
+        name: "Floral Cotton USA Sweater",
+        sku: "MSP: FLORAL001",
+        price: "399.000",
+        mainImage: "sweater/FloralCottonUsaSweaterden.webp",
+        sizeChart: "images/sizesweater.webp",
+        colors: [
+            { name: "Đen",      image: "sweater/FloralCottonUsaSweaterden.webp",      large: "sweater/FloralCottonUsaSweaterden.webp" },
+            { name: "Xám tiêu", image: "sweater/FloralCottonUsaSweaterxamtieu.webp", large: "sweater/FloralCottonUsaSweaterxamtieu.webp" },
+            { name: "Hồng",     image: "sweater/FloralCottonUsaSweaterhong.webp",    large: "sweater/FloralCottonUsaSweaterhong.webp" }
+        ]
+    },
+    "HOACUC001": {
+        category: "Sweater",
+        name: "Hoa Cúc Daisy Sweater",
+        sku: "MSP: HOACUC001",
+        price: "399.000",
+        mainImage: "sweater/hoacucsweaterden.webp",
+        sizeChart: "images/sizesweater.webp",
+        colors: [
+            { name: "Đen",   image: "sweater/hoacucsweaterden.webp",   large: "sweater/hoacucsweaterden.webp" },
+            { name: "Trắng", image: "sweater/hoacucsweatertrang.webp", large: "sweater/hoacucsweatertrang.webp" },
+            { name: "Hồng",  image: "sweater/hoacucsweaterhong.webp",  large: "sweater/hoacucsweaterhong.webp" }
+        ]
+    },
+
+    /* ══════════════ HOODIES ══════════════ */
+    "BS001": {
+        category: "Hoodies",
+        name: "Basic Hoodie",
+        sku: "MSP: BS001",
+        price: "399.000",
+        mainImage: "hoodies/HoodieCottonUSABasicden.webp",
+        sizeChart: "images/sizehoodies.webp",
+        colors: [
+            { name: "Đen",   image: "hoodies/HoodieCottonUSABasicden.webp",   large: "hoodies/HoodieCottonUSABasicden.webp" },
+            { name: "Trắng", image: "hoodies/HoodieCottonUSABasictrang.webp", large: "hoodies/HoodieCottonUSABasictrang.webp" },
+            { name: "Kem",   image: "hoodies/HoodieCottonUSABasickem.webp",   large: "hoodies/HoodieCottonUSABasickem.webp" }
+        ]
+    },
+    "PNS001": {
+        category: "Hoodies",
+        name: "Porsche Night Speed Hoodie",
+        sku: "MSP: PNS001",
+        price: "399.000",
+        mainImage: "hoodies/Porsch NIght Speed Hoodieden.webp",
+        sizeChart: "images/sizehoodies.webp",
+        colors: [
+            { name: "Đen",      image: "hoodies/Porsch NIght Speed Hoodieden.webp",      large: "hoodies/Porsch NIght Speed Hoodieden.webp" },
+            { name: "Hồng",     image: "hoodies/Porsch NIght Speed Hoodiehong.webp",     large: "hoodies/Porsch NIght Speed Hoodiehong.webp" },
+            { name: "Xám tiêu", image: "hoodies/Porsch NIght Speed Hoodiexamtieu.webp", large: "hoodies/Porsch NIght Speed Hoodiexamtieu.webp" }
+        ]
+    },
+    "PST001": {
+        category: "Hoodies",
+        name: "Porsche Silver Turbo S Hoodie",
+        sku: "MSP: PST001",
+        price: "399.000",
+        mainImage: "hoodies/Porsche Silver Turbo S Hoodieden.webp",
+        sizeChart: "images/sizehoodies.webp",
+        colors: [
+            { name: "Đen",   image: "hoodies/Porsche Silver Turbo S Hoodieden.webp",   large: "hoodies/Porsche Silver Turbo S Hoodieden.webp" },
+            { name: "Hồng",  image: "hoodies/Porsche Silver Turbo S Hoodiehong.webp",  large: "hoodies/Porsche Silver Turbo S Hoodiehong.webp" },
+            { name: "Trắng", image: "hoodies/Porsche Silver Turbo S Hoodietrang.webp", large: "hoodies/Porsche Silver Turbo S Hoodietrang.webp" }
+        ]
+    },
+    "Pos911": {
+        category: "Hoodies",
+        name: "Porsche 911 Hoodie",
+        sku: "MSP: Pos911",
+        price: "399.000",
+        mainImage: "hoodies/Posche911Hoodieden.webp",
+        sizeChart: "images/sizehoodies.webp",
+        colors: [
+            { name: "Đen",   image: "hoodies/Posche911Hoodieden.webp",  large: "hoodies/Posche911Hoodieden.webp" },
+            { name: "Trắng", image: "hoodies/Posche911Hoodietrang.webp", large: "hoodies/Posche911Hoodietrang.webp" },
+            { name: "Hồng",  image: "hoodies/Posche911Hoodiehong.webp",  large: "hoodies/Posche911Hoodiehong.webp" }
+        ]
+    },
+    "USA001": {
+        category: "Hoodies",
+        name: "USA City Of Dream Hoodie",
+        sku: "MSP: USA001",
+        price: "399.000",
+        mainImage: "hoodies/USA City Of Dream Hoodieden.webp",
+        sizeChart: "images/sizehoodies.webp",
+        colors: [
+            { name: "Đen",   image: "hoodies/USA City Of Dream Hoodieden.webp",   large: "hoodies/USA City Of Dream Hoodieden.webp" },
+            { name: "Trắng", image: "hoodies/USA City Of Dream Hoodietrang.webp", large: "hoodies/USA City Of Dream Hoodietrang.webp" },
+            { name: "Kem",   image: "hoodies/USA City Of Dream Hoodiekem.webp",   large: "hoodies/USA City Of Dream Hoodiekem.webp" }
+        ]
+    },
+    "Texas001": {
+        category: "Hoodies",
+        name: "USA Texas 1945 Hoodie",
+        sku: "MSP: Texas001",
+        price: "399.000",
+        mainImage: "hoodies/USA Texas 1945 Hoodiehong.webp",
+        sizeChart: "images/sizehoodies.webp",
+        colors: [
+            { name: "Hồng",     image: "hoodies/USA Texas 1945 Hoodiehong.webp",    large: "hoodies/USA Texas 1945 Hoodiehong.webp" },
+            { name: "Kem",      image: "hoodies/USA Texas 1945 Hoodiekem.webp",     large: "hoodies/USA Texas 1945 Hoodiekem.webp" },
+            { name: "Xanh tím", image: "hoodies/USA Texas 1945 Hoodiexamtieu.webp", large: "hoodies/USA Texas 1945 Hoodiexamtieu.webp" }
+        ]
+    },
+    "VUS001": {
+        category: "Hoodies",
+        name: "USA Vintage United State Hoodie",
+        sku: "MSP: VUS001",
+        price: "399.000",
+        mainImage: "hoodies/USA Vintage United State Hoodieden.webp",
+        sizeChart: "images/sizehoodies.webp",
+        colors: [
+            { name: "Đen",   image: "hoodies/USA Vintage United State Hoodieden.webp",   large: "hoodies/USA Vintage United State Hoodieden.webp" },
+            { name: "Trắng", image: "hoodies/USA Vintage United State Hoodietrang.webp", large: "hoodies/USA Vintage United State Hoodietrang.webp" },
+            { name: "Hồng",  image: "hoodies/USA Vintage United State Hoodiehong.webp",  large: "hoodies/USA Vintage United State Hoodiehong.webp" }
+        ]
+    },
+
+    /* ══════════════ ÁO THUN NGẮN TAY ══════════════ */
+    "WDX300": {
+        category: "Áo Thun",
+        name: "Watch Doxa X300",
+        sku: "MSP: WDX300",
+        price: "189.000",
+        mainImage: "aothun/Watch Doxa X300 den.webp",
+        sizeChart: "images/sizeaothunngantay.webp",
+        colors: [
+            { name: "Đen",   image: "aothun/Watch Doxa X300 den.webp",   large: "aothun/Watch Doxa X300 den.webp" },
+            { name: "Kem",   image: "aothun/Watch Doxa X300 kem.webp",   large: "aothun/Watch Doxa X300 kem.webp" },
+            { name: "Trắng", image: "aothun/Watch Doxa X300 trang.webp", large: "aothun/Watch Doxa X300 trang.webp" }
+        ]
+    },
+    "WOT001": {
+        category: "Áo Thun",
+        name: "Watch One Time",
+        sku: "MSP: WOT001",
+        price: "189.000",
+        mainImage: "aothun/Watch One Time den.webp",
+        sizeChart: "images/sizeaothunngantay.webp",
+        colors: [
+            { name: "Đen",   image: "aothun/Watch One Time den.webp",   large: "aothun/Watch One Time den.webp" },
+            { name: "Kem",   image: "aothun/Watch One Time kem.webp",   large: "aothun/Watch One Time kem.webp" },
+            { name: "Trắng", image: "aothun/Watch One Time trang.webp", large: "aothun/Watch One Time trang.webp" }
+        ]
+    },
+    "WTC001": {
+        category: "Áo Thun",
+        name: "Watch That Completes",
+        sku: "MSP: WTC001",
+        price: "189.000",
+        mainImage: "aothun/Watch That Completes den.webp",
+        sizeChart: "images/sizeaothunngantay.webp",
+        colors: [
+            { name: "Đen",   image: "aothun/Watch That Completes den.webp",   large: "aothun/Watch That Completes den.webp" },
+            { name: "Kem",   image: "aothun/Watch That Completes kem.webp",   large: "aothun/Watch That Completes kem.webp" },
+            { name: "Trắng", image: "aothun/Watch That Completes trang.webp", large: "aothun/Watch That Completes trang.webp" }
+        ]
+    },
+    "PP911T": {
+        category: "Áo Thun",
+        name: "Pink Porsche 911 Turbo",
+        sku: "MSP: PP911T",
+        price: "189.000",
+        mainImage: "aothun/Pink Porsche 911 Turbo den.webp",
+        sizeChart: "images/sizeaothunngantay.webp",
+        colors: [
+            { name: "Đen",   image: "aothun/Pink Porsche 911 Turbo den.webp",   large: "aothun/Pink Porsche 911 Turbo den.webp" },
+            { name: "Trắng", image: "aothun/Pink Porsche 911 Turbo trang.webp", large: "aothun/Pink Porsche 911 Turbo trang.webp" },
+            { name: "Kem",   image: "aothun/Pink Porsche 911 Turbo kem.webp",   large: "aothun/Pink Porsche 911 Turbo kem.webp" }
+        ]
+    },
+    "PVS001": {
+        category: "Áo Thun",
+        name: "Porsche Vintage Style",
+        sku: "MSP: PVS001",
+        price: "189.000",
+        mainImage: "aothun/Porsche Vintage Style den.webp",
+        sizeChart: "images/sizeaothunngantay.webp",
+        colors: [
+            { name: "Đen",   image: "aothun/Porsche Vintage Style den.webp",   large: "aothun/Porsche Vintage Style den.webp" },
+            { name: "Kem",   image: "aothun/Porsche Vintage Style kem.webp",   large: "aothun/Porsche Vintage Style kem.webp" },
+            { name: "Trắng", image: "aothun/Porsche Vintage Style trang.webp", large: "aothun/Porsche Vintage Style trang.webp" }
+        ]
+    },
+    "PVB001": {
+        category: "Áo Thun",
+        name: "Porsche Violet Berry",
+        sku: "MSP: PVB001",
+        price: "189.000",
+        mainImage: "aothun/Porsche Violet Berry den.webp",
+        sizeChart: "images/sizeaothunngantay.webp",
+        colors: [
+            { name: "Đen",   image: "aothun/Porsche Violet Berry den.webp",   large: "aothun/Porsche Violet Berry den.webp" },
+            { name: "Trắng", image: "aothun/Porsche Violet Berry trang.webp", large: "aothun/Porsche Violet Berry trang.webp" },
+            { name: "Kem",   image: "aothun/Porsche Violet Berry kem.webp",   large: "aothun/Porsche Violet Berry kem.webp" }
+        ]
+    },
+    "UCE001": {
+        category: "Áo Thun",
+        name: "USA California Extraordinary",
+        sku: "MSP: UCE001",
+        price: "189.000",
+        mainImage: "aothun/USA California Extraordinary den.webp",
+        sizeChart: "images/sizeaothunngantay.webp",
+        colors: [
+            { name: "Đen",   image: "aothun/USA California Extraordinary den.webp",   large: "aothun/USA California Extraordinary den.webp" },
+            { name: "Trắng", image: "aothun/USA California Extraordinary trang.webp", large: "aothun/USA California Extraordinary trang.webp" },
+            { name: "Kem",   image: "aothun/USA California Extraordinary kem.webp",   large: "aothun/USA California Extraordinary kem.webp" }
+        ]
+    },
+    "ULA001": {
+        category: "Áo Thun",
+        name: "USA Los Angeles",
+        sku: "MSP: ULA001",
+        price: "189.000",
+        mainImage: "aothun/USA Los Ageles den.webp",
+        sizeChart: "images/sizeaothunngantay.webp",
+        colors: [
+            { name: "Đen",   image: "aothun/USA Los Ageles den.webp",   large: "aothun/USA Los Ageles den.webp" },
+            { name: "Trắng", image: "aothun/USA Los Ageles trang.webp", large: "aothun/USA Los Ageles trang.webp" },
+            { name: "Kem",   image: "aothun/USA Los Ageles kem.webp",   large: "aothun/USA Los Ageles kem.webp" }
+        ]
+    },
+    "UMTE001": {
+        category: "Áo Thun",
+        name: "USA More Than Enough",
+        sku: "MSP: UMTE001",
+        price: "189.000",
+        mainImage: "aothun/USA More Than Enough den.webp",
+        sizeChart: "images/sizeaothunngantay.webp",
+        colors: [
+            { name: "Đen",   image: "aothun/USA More Than Enough den.webp",   large: "aothun/USA More Than Enough den.webp" },
+            { name: "Trắng", image: "aothun/USA More Than Enough trang.webp", large: "aothun/USA More Than Enough trang.webp" },
+            { name: "Kem",   image: "aothun/USA More Than Enough kem.webp",   large: "aothun/USA More Than Enough kem.webp" }
+        ]
+    },
+
+    /* ══════════════ ÁO THUN DÀI TAY ══════════════ */
+    "ER001": {
+        category: "Áo Thun Dài Tay",
+        name: "Rapper Eminem Recovery",
+        sku: "MSP: ER001",
+        price: "189.000",
+        mainImage: "aothundaitay/Rapper Eminem Recovery den.webp",
+        sizeChart: "images/sizeaothundaitay.webp",
+        colors: [
+            { name: "Đen",   image: "aothundaitay/Rapper Eminem Recovery den.webp",   large: "aothundaitay/Rapper Eminem Recovery den.webp" },
+            { name: "Navy",  image: "aothundaitay/Rapper Eminem Recovery navy.webp",  large: "aothundaitay/Rapper Eminem Recovery navy.webp" },
+            { name: "Trắng", image: "aothundaitay/Rapper Eminem Recovery trang.webp", large: "aothundaitay/Rapper Eminem Recovery trang.webp" }
+        ]
+    },
+    "ICDSN001": {
+        category: "Áo Thun Dài Tay",
+        name: "Rapper Ice Cube Dont Say Nothing",
+        sku: "MSP: ICDSN001",
+        price: "189.000",
+        mainImage: "aothundaitay/Rapper Ice Cube Dont Say Nothing den.webp",
+        sizeChart: "images/sizeaothundaitay.webp",
+        colors: [
+            { name: "Đen",   image: "aothundaitay/Rapper Ice Cube Dont Say Nothing den.webp",  large: "aothundaitay/Rapper Ice Cube Dont Say Nothing den.webp" },
+            { name: "Navy",  image: "aothundaitay/Rapper Ice Cube Dont Say Nothing navy.webp", large: "aothundaitay/Rapper Ice Cube Dont Say Nothing navy.webp" },
+            { name: "Kem",   image: "aothundaitay/Rapper Ice Cube Dont Say Nothing kem.webp",  large: "aothundaitay/Rapper Ice Cube Dont Say Nothing kem.webp" }
+        ]
+    },
+    "TSFT001": {
+        category: "Áo Thun Dài Tay",
+        name: "Rapper Travis Scott Fein Typo",
+        sku: "MSP: TSFT001",
+        price: "189.000",
+        mainImage: "aothundaitay/Rapper Travis Scott Fein Typo den.webp",
+        sizeChart: "images/sizeaothundaitay.webp",
+        colors: [
+            { name: "Đen",   image: "aothundaitay/Rapper Travis Scott Fein Typo den.webp",   large: "aothundaitay/Rapper Travis Scott Fein Typo den.webp" },
+            { name: "Kem",   image: "aothundaitay/Rapper Travis Scott Fein Typo kem.webp",   large: "aothundaitay/Rapper Travis Scott Fein Typo kem.webp" },
+            { name: "Trắng", image: "aothundaitay/Rapper Travis Scott Fein Typo trang.webp", large: "aothundaitay/Rapper Travis Scott Fein Typo trang.webp" }
+        ]
+    },
+    "AB911": {
+        category: "Áo Thun Dài Tay",
+        name: "Porsche All Black 911 GT3RS",
+        sku: "MSP: AB911",
+        price: "189.000",
+        mainImage: "aothundaitay/Porsche All Black 911 GT3RS den.webp",
+        sizeChart: "images/sizeaothundaitay.webp",
+        colors: [
+            { name: "Đen",   image: "aothundaitay/Porsche All Black 911 GT3RS den.webp",   large: "aothundaitay/Porsche All Black 911 GT3RS den.webp" },
+            { name: "Trắng", image: "aothundaitay/Porsche All Black 911 GT3RS trang.webp", large: "aothundaitay/Porsche All Black 911 GT3RS trang.webp" },
+            { name: "Navy",  image: "aothundaitay/Porsche All Black 911 GT3RS navy.webp",  large: "aothundaitay/Porsche All Black 911 GT3RS navy.webp" }
+        ]
+    },
+    "ESR001": {
+        category: "Áo Thun Dài Tay",
+        name: "Porsche Eat Sleep Repeat",
+        sku: "MSP: ESR001",
+        price: "189.000",
+        mainImage: "aothundaitay/Porsche Eat Sleep Repeat den.webp",
+        sizeChart: "images/sizeaothundaitay.webp",
+        colors: [
+            { name: "Đen",   image: "aothundaitay/Porsche Eat Sleep Repeat den.webp",  large: "aothundaitay/Porsche Eat Sleep Repeat den.webp" },
+            { name: "Trắng", image: "aothundaitay/Porsche Eat Sleep Repeat trang.webp", large: "aothundaitay/Porsche Eat Sleep Repeat trang.webp" },
+            { name: "navy",  image: "aothundaitay/Porsche Eat Sleep Repeat navy.webp",  large: "aothundaitay/Porsche Eat Sleep Repeat navy.webp" }
+        ]
+    },
+    "TSG001": {
+        category: "Áo Thun Dài Tay",
+        name: "Porsche Turbo S GTSTREET",
+        sku: "MSP: TSG001",
+        price: "189.000",
+        mainImage: "aothundaitay/Porsche Turbo S GTSTREET den.webp",
+        sizeChart: "images/sizeaothundaitay.webp",
+        colors: [
+            { name: "Đen",   image: "aothundaitay/Porsche Turbo S GTSTREET den.webp",   large: "aothundaitay/Porsche Turbo S GTSTREET den.webp" },
+            { name: "Trắng", image: "aothundaitay/Porsche Turbo S GTSTREET trang.webp", large: "aothundaitay/Porsche Turbo S GTSTREET trang.webp" },
+            { name: "Navy",  image: "aothundaitay/Porsche Turbo S GTSTREET navy.webp",  large: "aothundaitay/Porsche Turbo S GTSTREET navy.webp" }
+        ]
+    },
+    "MTE001": {
+        category: "Áo Thun Dài Tay",
+        name: "USA More Than Enough (Dài Tay)",
+        sku: "MSP: MTE001",
+        price: "189.000",
+        mainImage: "aothundaitay/USA More Than Enough den.webp",
+        sizeChart: "images/sizeaothundaitay.webp",
+        colors: [
+            { name: "Đen",   image: "aothundaitay/USA More Than Enough den.webp",   large: "aothundaitay/USA More Than Enough den.webp" },
+            { name: "Trắng", image: "aothundaitay/USA More Than Enough trang.webp", large: "aothundaitay/USA More Than Enough trang.webp" },
+            { name: "Navy",  image: "aothundaitay/USA More Than Enough navy.webp",  large: "aothundaitay/USA More Than Enough navy.webp" }
+        ]
+    },
+    "NYC001": {
+        category: "Áo Thun Dài Tay",
+        name: "USA New York City",
+        sku: "MSP: NYC001",
+        price: "189.000",
+        mainImage: "aothundaitay/USA New York City den.webp",
+        sizeChart: "images/sizeaothundaitay.webp",
+        colors: [
+            { name: "Đen",   image: "aothundaitay/USA New York City den.webp",   large: "aothundaitay/USA New York City den.webp" },
+            { name: "Trắng", image: "aothundaitay/USA New York City trang.webp", large: "aothundaitay/USA New York City trang.webp" },
+            { name: "Navy",  image: "aothundaitay/USA New York City navy.webp",  large: "aothundaitay/USA New York City navy.webp" }
+        ]
+    },
+    "Texas002": {
+        category: "Áo Thun Dài Tay",
+        name: "USA Texas 1945 (Dài Tay)",
+        sku: "MSP: Texas002",
+        price: "189.000",
+        mainImage: "aothundaitay/USA Texas 1945 den.webp",
+        sizeChart: "images/sizeaothundaitay.webp",
+        colors: [
+            { name: "Đen",   image: "aothundaitay/USA Texas 1945 den.webp",   large: "aothundaitay/USA Texas 1945 den.webp" },
+            { name: "Trắng", image: "aothundaitay/USA Texas 1945 trang.webp", large: "aothundaitay/USA Texas 1945 trang.webp" },
+            { name: "Navy",  image: "aothundaitay/USA Texas 1945 navy.webp",  large: "aothundaitay/USA Texas 1945 navy.webp" }
+        ]
+    }
+};
+        // Lấy productId từ URL
+        const urlParams = new URLSearchParams(window.location.search);
+        let productId = urlParams.get('id');
+        if (!productId || !products[productId]) productId = "QOS001";
+        const product = products[productId];
+
+        // Breadcrumb
+        const breadcrumbCat = document.getElementById('productBreadcrumbCat');
+        const breadcrumbName = document.getElementById('productBreadcrumb');
+        if (breadcrumbCat) breadcrumbCat.textContent = product.category || 'Sản phẩm';
+        if (breadcrumbName) breadcrumbName.textContent = product.name;
+
+        document.getElementById('productName').textContent = product.name;
+        document.getElementById('productSku').textContent = product.sku;
+        document.getElementById('productPrice').innerHTML = product.price + '<sup>₫</sup>';
+        document.getElementById('mainProductImage').src = product.mainImage;
+
+        // Cập nhật ảnh size chart theo sản phẩm
+        const sizeChartImage = document.getElementById('sizeChartImage');
+        if (sizeChartImage && product.sizeChart) {
+            sizeChartImage.src = product.sizeChart;
+        }
+
+        // Hiển thị màu sắc
+        const swatchContainer = document.getElementById('colorSwatches');
+        swatchContainer.innerHTML = '';
+        product.colors.forEach((color, index) => {
+            const swatchDiv = document.createElement('div');
+            swatchDiv.className = 'swatch-item' + (index === 0 ? ' active' : '');
+            swatchDiv.setAttribute('data-color', color.name);
+            swatchDiv.setAttribute('data-image', color.large);
+            swatchDiv.innerHTML = `<img src="${color.image}" alt="${color.name}">`;
+            swatchContainer.appendChild(swatchDiv);
+        });
+        document.getElementById('selectedColorName').textContent = product.colors[0].name;
+
+        // Sự kiện chọn màu
+        document.querySelectorAll('.swatch-item').forEach(function(item) {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.swatch-item').forEach(el => el.classList.remove('active'));
+                this.classList.add('active');
+                document.getElementById('mainProductImage').src = this.getAttribute('data-image');
+                document.getElementById('selectedColorName').textContent = this.getAttribute('data-color');
+            });
+        });
+
+        // Sự kiện chọn size
+        const sizeSpans = document.querySelectorAll('.Size span');
+        const sizeWarning = document.getElementById('sizeWarning');
+        let selectedSize = null;
+
+        sizeSpans.forEach(function(span) {
+            span.addEventListener('click', function() {
+                sizeSpans.forEach(s => s.classList.remove('active'));
+                this.classList.add('active');
+                selectedSize = this.textContent.trim();
+                if (sizeWarning) sizeWarning.style.display = 'none';
+            });
+        });
+
+        // Lấy price dạng số
+        function getPriceNumber(priceStr) {
+            return parseInt(priceStr.replace(/\./g, ''), 10);
+        }
+
+        // NÚT THÊM VÀO GIỎ HÀNG
+        document.getElementById('btnThem').addEventListener('click', function() {
+            if (!selectedSize) {
+                if (sizeWarning) sizeWarning.style.display = 'block';
+                toast('Vui lòng chọn size trước khi thêm vào giỏ!', 'error');
+                return;
+            }
+            const activeSwatch = document.querySelector('.swatch-item.active');
+            const selectedColor = activeSwatch ? activeSwatch.getAttribute('data-color') : product.colors[0].name;
+            const qty = parseInt(document.getElementById('quantityInput').value) || 1;
+            const priceNum = getPriceNumber(product.price);
+            
+            window.addToCart({
+                id: productId,
+                name: product.name,
+                price: priceNum,
+                qty: qty,
+                size: selectedSize,
+                color: selectedColor,
+                img: document.getElementById('mainProductImage').src
+            });
+            toast('Đã thêm ' + qty + ' sản phẩm vào giỏ hàng!', 'success');
+        });
+
+        // NÚT MUA HÀNG
+document.getElementById('btnMua').addEventListener('click', function() {
+    if (!selectedSize) {
+        if (sizeWarning) sizeWarning.style.display = 'block';
+        toast('Vui lòng chọn size trước khi mua hàng!', 'error');
+        return;
+    }
+    const activeSwatch = document.querySelector('.swatch-item.active');
+    const selectedColor = activeSwatch ? activeSwatch.getAttribute('data-color') : product.colors[0].name;
+    const qty = parseInt(document.getElementById('quantityInput').value) || 1;
+    const priceNum = getPriceNumber(product.price);
+    
+    // Tạo giỏ hàng mới chỉ gồm sản phẩm đang chọn
+    const newCart = [{
+        id: productId,
+        name: product.name,
+        price: priceNum,
+        qty: qty,
+        size: selectedSize,
+        color: selectedColor,
+        img: document.getElementById('mainProductImage').src
+    }];
+    
+    // Lưu vào giỏ hàng chính
+    localStorage.setItem('cottonusa_cart', JSON.stringify(newCart));
+    // Xóa dữ liệu checkout cũ để tránh hiển thị sản phẩm sai
+    localStorage.removeItem('cottonusa_checkout');
+    
+    window.location.href = 'giaohang.html';
+});
+    </script>
+
+    <!-- Dropdown overlay logic -->
+    <script>
+        (function initHeaderDropdowns() {
+            const cartBtn = document.getElementById('cartBtn');
+            const cartDropdown = document.getElementById('cartDropdown');
+            const authBtn = document.getElementById('authBtn');
+            const authDropdown = document.getElementById('authDropdown');
+            const overlay = document.getElementById('dropdownOverlay');
+
+            if (!cartBtn || !cartDropdown || !authBtn || !authDropdown || !overlay) return;
+
+            function closeAll() {
+                cartDropdown.classList.remove('open');
+                authDropdown.classList.remove('open');
+                overlay.classList.remove('active');
+            }
+
+            cartBtn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                const isOpen = cartDropdown.classList.contains('open');
+                closeAll();
+                if (!isOpen) {
+                    cartDropdown.classList.add('open');
+                    overlay.classList.add('active');
+                }
+            });
+
+            authBtn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                const isOpen = authDropdown.classList.contains('open');
+                closeAll();
+                if (!isOpen) {
+                    authDropdown.classList.add('open');
+                    overlay.classList.add('active');
+                }
+            });
+
+            cartDropdown.addEventListener('click', function (e) { e.stopPropagation(); });
+            authDropdown.addEventListener('click', function (e) { e.stopPropagation(); });
+
+            overlay.addEventListener('click', function () { closeAll(); });
+            document.addEventListener('click', function () { closeAll(); });
+        })();
+    </script>
+</body>
+</html>
