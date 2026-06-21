@@ -28,7 +28,7 @@ if (!in_array($status, $valid_status)) {
 $host = 'localhost';
 $user = 'root';
 $pass = '';
-$db = 'cottonusa_db';
+$db = 'cottonusa';
 
 $conn = new mysqli($host, $user, $pass, $db);
 if ($conn->connect_error) {

@@ -11,11 +11,11 @@ if (!isset($_SESSION['admin_id']) || !isset($_SESSION['admin_username'])) {
 
 $fullname = $_SESSION['admin_fullname'] ?? 'Admin';
 
-// Kết nối database
+// ===== KẾT NỐI DATABASE =====
 $host = 'localhost';
 $user = 'root';
 $pass = '';
-$db = 'cottonusa_db';
+$db = 'cottonusa';  // ← ĐÃ SỬA
 
 $conn = new mysqli($host, $user, $pass, $db);
 if ($conn->connect_error) {
@@ -55,7 +55,7 @@ while ($row = $result->fetch_assoc()) {
 }
 $stmt->close();
 
-// Tính tổng tiền và phí ship
+// Tính tổng tiền
 $subtotal = 0;
 foreach ($items as $item) {
     $subtotal += $item['price'] * $item['quantity'];
@@ -79,18 +79,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_status'])) {
 
 $conn->close();
 
-// Hàm lấy ảnh sản phẩm
-function getProductImage($product_code) {
-    global $conn;
-    $stmt = $conn->prepare("SELECT main_image FROM products WHERE id = ?");
-    $stmt->bind_param("s", $product_code);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    if ($result->num_rows > 0) {
-        $row = $result->fetch_assoc();
-        return $row['main_image'];
-    }
-    return 'images/no-image.png';
+// Hàm định dạng ngày
+function ngayVietNam($date) {
+    return date('d/m/Y H:i', strtotime($date));
 }
 
 $status_badge = [
@@ -139,15 +130,12 @@ $status_colors = [
             z-index: 100;
         }
         .sidebar-brand {
-            padding: 20px 24px;
-            border-bottom: 1px solid rgba(255,255,255,0.08);
-            display: flex;
-            align-items: center;
-            gap: 12px;
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
         }
-        .sidebar-brand img { height: 40px; }
-        .sidebar-brand span { font-size: 18px; font-weight: 700; }
-        .sidebar-brand small { font-size: 11px; color: rgba(255,255,255,0.4); display: block; }
+        .sidebar-brand a { display: block; text-decoration: none; }
+        .sidebar-brand img { height: 50px; width: auto; display: block; margin: 0 auto; }
         .sidebar-nav { flex: 1; padding: 16px 0; }
         .sidebar-nav .nav-label {
             font-size: 11px;
@@ -373,17 +361,6 @@ $status_colors = [
         }
         .back-link:hover { color: #e30613; }
         
-        .note-box {
-            margin-top: 16px;
-            padding: 12px 16px;
-            background: #fff8e1;
-            border-radius: 8px;
-            border: 1px solid #ffe082;
-            font-size: 13px;
-            color: #e65100;
-        }
-        .note-box i { margin-right: 8px; }
-        
         .alert {
             padding: 14px 18px;
             border-radius: 10px;
@@ -403,7 +380,6 @@ $status_colors = [
             .main-content { margin-left: 0; padding: 16px; }
             .order-card .col { flex: 1 1 100%; }
             .detail-table { font-size: 12px; }
-            .detail-table .product-cell img { width: 36px; height: 36px; }
         }
         .menu-toggle {
             display: none;
@@ -421,7 +397,43 @@ $status_colors = [
 <body>
 
     <!-- Sidebar -->
-    <?php include 'sidebar.php'; ?>
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <a href="home.php" style="display:block; text-decoration:none;">
+                <img src="../images/logo.avif" alt="CottonUSA">
+            </a>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="home.php" style="display:flex; align-items:center; gap:14px; padding:12px 24px; color:rgba(255,255,255,0.7); text-decoration:none; font-size:14px; transition:all 0.2s; border-left:3px solid transparent; background:rgba(255,255,255,0.05); margin-bottom:4px;">
+                <i class="fas fa-store"></i> Trang chính
+            </a>
+            <div class="nav-label">Tổng quan</div>
+            <a href="dashboard.php">
+                <i class="fas fa-chart-pie"></i> Thống kê
+            </a>
+            <a href="products.php">
+                <i class="fas fa-tshirt"></i> Sản phẩm
+            </a>
+            <a href="orders.php" class="active">
+                <i class="fas fa-shopping-cart"></i> Đơn hàng
+            </a>
+            <div class="nav-label">Nội dung</div>
+            <a href="statistics.php">
+                <i class="fas fa-chart-line"></i> Thống kê doanh thu
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="avatar"><?php echo strtoupper(substr($fullname, 0, 1)); ?></div>
+                <div>
+                    <div class="name"><?php echo htmlspecialchars($fullname); ?></div>
+                    <div class="role">Administrator</div>
+                </div>
+            </div>
+            <a href="logout.php"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a>
+        </div>
+    </aside>
+
     <!-- Main -->
     <main class="main-content">
         <div class="page-header">
@@ -451,7 +463,7 @@ $status_colors = [
                 </div>
                 <div class="col">
                     <div class="label">Ngày đặt</div>
-                    <div class="value"><?php echo date('d/m/Y H:i', strtotime($order['created_at'])); ?></div>
+                    <div class="value"><?php echo ngayVietNam($order['created_at']); ?></div>
                 </div>
                 <div class="col">
                     <div class="label">Phương thức thanh toán</div>
@@ -497,32 +509,15 @@ $status_colors = [
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach ($items as $item): 
-                        $product_image = 'images/no-image.png';
-                        // Tìm ảnh sản phẩm
-                        $conn2 = new mysqli('localhost', 'root', '', 'cottonusa_db');
-                        $stmt2 = $conn2->prepare("SELECT main_image FROM products WHERE id = ?");
-                        $stmt2->bind_param("s", $item['product_code']);
-                        $stmt2->execute();
-                        $result2 = $stmt2->get_result();
-                        if ($result2->num_rows > 0) {
-                            $row2 = $result2->fetch_assoc();
-                            if (!empty($row2['main_image'])) {
-                                $product_image = '../' . $row2['main_image'];
-                            }
-                        }
-                        $conn2->close();
-                    ?>
+                    <?php foreach ($items as $item): ?>
                     <tr>
                         <td>
                             <div class="product-cell">
-                                <img src="<?php echo $product_image; ?>" alt="<?php echo htmlspecialchars($item['product_name']); ?>" onerror="this.src='../images/no-image.png'">
                                 <div class="info">
                                     <div class="name"><?php echo htmlspecialchars($item['product_name']); ?></div>
                                     <div class="meta">
                                         <?php if ($item['size']): ?>Size: <?php echo htmlspecialchars($item['size']); ?> | <?php endif; ?>
                                         <?php if ($item['color']): ?>Màu: <?php echo htmlspecialchars($item['color']); ?><?php endif; ?>
-                                        <?php if (!$item['size'] && !$item['color']): ?>Không có biến thể<?php endif; ?>
                                     </div>
                                 </div>
                             </div>
@@ -550,13 +545,6 @@ $status_colors = [
                     <span class="value"><?php echo number_format($total); ?>đ</span>
                 </div>
             </div>
-
-            <?php if (!empty($order['note'])): ?>
-            <div class="note-box">
-                <i class="fas fa-pencil-alt"></i>
-                <strong>Ghi chú:</strong> <?php echo htmlspecialchars($order['note']); ?>
-            </div>
-            <?php endif; ?>
         </div>
 
         <!-- Cập nhật trạng thái -->

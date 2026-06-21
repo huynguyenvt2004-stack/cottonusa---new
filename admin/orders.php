@@ -1,9 +1,9 @@
 <?php
-// Sửa đường dẫn từ ../config/database.php thành ../config/db.php (hoặc tạo file database.php)
-require_once '../config/db.php';
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+session_start();
 
 // Kiểm tra đăng nhập
-session_start();
 if (!isset($_SESSION['admin_id']) || !isset($_SESSION['admin_username'])) {
     header('Location: login.php');
     exit;
@@ -11,16 +11,18 @@ if (!isset($_SESSION['admin_id']) || !isset($_SESSION['admin_username'])) {
 
 $fullname = $_SESSION['admin_fullname'] ?? 'Admin';
 
-// Kết nối database
+// ===== KẾT NỐI DATABASE =====
 $host = 'localhost';
 $user = 'root';
 $pass = '';
-$db = 'cottonusa';
+$db = 'cottonusa';  // ← ĐÃ SỬA
 
 $conn = new mysqli($host, $user, $pass, $db);
 if ($conn->connect_error) {
     die("Kết nối thất bại: " . $conn->connect_error);
 }
+
+// ... phần còn lại của file
 
 // Lấy danh sách đơn hàng
 $orders = [];
