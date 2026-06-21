@@ -15,7 +15,7 @@ $fullname = $_SESSION['admin_fullname'] ?? 'Admin';
 $host = 'localhost';
 $user = 'root';
 $pass = '';
-$db = 'cottonusa_db';
+$db = 'cottonusa';
 
 $conn = new mysqli($host, $user, $pass, $db);
 if ($conn->connect_error) {

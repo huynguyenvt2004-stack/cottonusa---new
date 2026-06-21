@@ -3,11 +3,11 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 session_start();
 
-// Kết nối database
+// ===== KẾT NỐI DATABASE =====
 $host = 'localhost';
 $user = 'root';
 $pass = '';
-$db = 'cottonusa_db';
+$db = 'cottonusa';  
 
 $conn = new mysqli($host, $user, $pass, $db);
 
@@ -17,7 +17,7 @@ if ($conn->connect_error) {
 
 $error = '';
 
-// Xử lý đăng nhập
+// ===== XỬ LÝ ĐĂNG NHẬP =====
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username'] ?? '');
     $password = trim($_POST['password'] ?? '');
@@ -25,37 +25,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($username) || empty($password)) {
         $error = 'Vui lòng nhập tên đăng nhập và mật khẩu';
     } else {
-        $stmt = $conn->prepare("SELECT * FROM users WHERE username = ?");
-        $stmt->bind_param("s", $username);
-        $stmt->execute();
-        $result = $stmt->get_result();
+        $stmt = $conn->prepare("SELECT id, username, password, fullname, email, role FROM users WHERE username = ?");
         
-        if ($result->num_rows === 1) {
-            $user = $result->fetch_assoc();
-            
-            // So sánh mật khẩu
-            $passwordCorrect = false;
-            if ($password === $user['password']) {
-                $passwordCorrect = true;
-            } elseif (password_verify($password, $user['password'])) {
-                $passwordCorrect = true;
-            }
-            
-            if ($passwordCorrect) {
-                $_SESSION['admin_id'] = $user['id'];
-                $_SESSION['admin_username'] = $user['username'];
-                $_SESSION['admin_fullname'] = $user['fullname'];
-                $_SESSION['admin_role'] = $user['role'];
-                
-                header('Location: home.php');
-                exit;
-            } else {
-                $error = 'Mật khẩu không đúng!';
-            }
+        if ($stmt === false) {
+            $error = 'Lỗi SQL: ' . $conn->error;
         } else {
-            $error = 'Tên đăng nhập không tồn tại!';
+            $stmt->bind_param("s", $username);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            
+            if ($result->num_rows === 1) {
+                $user = $result->fetch_assoc();
+                
+                // So sánh mật khẩu
+                $passwordCorrect = false;
+                if ($password === $user['password']) {
+                    $passwordCorrect = true;
+                } elseif (password_verify($password, $user['password'])) {
+                    $passwordCorrect = true;
+                }
+                
+                if ($passwordCorrect) {
+                    $_SESSION['admin_id'] = $user['id'];
+                    $_SESSION['admin_username'] = $user['username'];
+                    $_SESSION['admin_fullname'] = $user['fullname'];
+                    $_SESSION['admin_role'] = $user['role'];
+                    
+                    header('Location: home.php');
+                    exit;
+                } else {
+                    $error = 'Mật khẩu không đúng!';
+                }
+            } else {
+                $error = 'Tên đăng nhập không tồn tại!';
+            }
+            $stmt->close();
         }
-        $stmt->close();
     }
 }
 $conn->close();
@@ -193,6 +198,7 @@ $conn->close();
             <img src="../images/logo.avif" alt="CottonUSA">
         </div>
         <h1>Đăng nhập</h1>
+        <p class="sub">Quản trị hệ thống CottonUSA</p>
         
         <?php if ($error): ?>
             <div class="error">
@@ -224,7 +230,6 @@ $conn->close();
     </div>
 
     <script>
-        // Toggle hiển thị mật khẩu
         document.getElementById('togglePassword').addEventListener('click', function() {
             const passwordInput = document.getElementById('password');
             const icon = this.querySelector('i');
@@ -233,12 +238,10 @@ $conn->close();
                 passwordInput.type = 'text';
                 icon.classList.remove('fa-eye');
                 icon.classList.add('fa-eye-slash');
-                this.title = 'Ẩn mật khẩu';
             } else {
                 passwordInput.type = 'password';
                 icon.classList.remove('fa-eye-slash');
                 icon.classList.add('fa-eye');
-                this.title = 'Hiển thị mật khẩu';
             }
         });
     </script>
