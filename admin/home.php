@@ -320,9 +320,6 @@ function statusText($status) {
             <a href="orders.php">
                 <i class="fas fa-shopping-cart"></i> Đơn hàng
             </a>
-            <a href="#">
-                <i class="fas fa-warehouse"></i> Kho hàng
-            </a>
             <div class="nav-label">Nội dung</div>
             <a href="statistics.php">
                 <i class="fas fa-chart-line"></i> Thống kê doanh thu
