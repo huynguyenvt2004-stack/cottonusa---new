@@ -8,7 +8,7 @@ echo "<br>Kết nối database...";
 $host = 'localhost';
 $user = 'root';
 $pass = '';
-$db = 'cottonusa_db';
+$db = 'cottonusa';
 
 $conn = new mysqli($host, $user, $pass, $db);
 
