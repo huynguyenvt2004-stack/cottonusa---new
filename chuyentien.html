@@ -55,7 +55,6 @@
             color: #e30613;
             font-size: 18px;
         }
-        /* Toast message */
         .toast-message {
             position: fixed;
             top: 20px;
@@ -90,7 +89,6 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
-        /* Modal success */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -252,6 +250,7 @@
     </style>
 </head>
 <body>
+    <!-- HEADER giữ nguyên -->
     <header>
         <div class="logo"><img src="images/logo.avif" alt="Cotton USA"></div>
         <ul class="MENU">
@@ -259,19 +258,19 @@
             <li class="has-submenu"><a href="quan.html">QUẦN <span class="arrow">▼</span></a>
                 <ul class="sub-menu"><li><a href="quan.html?type=ong-suong">Quần Ống Suông</a></li><li><a href="quan.html?type=jogger">Quần Jogger</a></li></ul>
             </li>
-            <li class="has-submenu"><a href="sweater.php">SWEATERS <span class="arrow">▼</span></a>
-                <ul class="sub-menu"><li><a href="sweater.php?id=US001">University Sweater</a></li><li><a href="sweater.php?id=CS001">Car Sweater</a></li><li><a href="sweater.php?id=FS001">Floral Sweater</a></li></ul>
+            <li class="has-submenu"><a href="sweater.html">SWEATERS <span class="arrow">▼</span></a>
+                <ul class="sub-menu"><li><a href="sweater.html?id=US001">University Sweater</a></li><li><a href="sweater.html?id=CS001">Car Sweater</a></li><li><a href="sweater.html?id=FS001">Floral Sweater</a></li></ul>
             </li>
-            <li class="has-submenu"><a href="hoodies.php">HOODIES <span class="arrow">▼</span></a>
-                <ul class="sub-menu"><li><a href="hoodies.php?id=BH001">Basic Hoodie</a></li><li><a href="hoodies.php?id=PH001">Porsche Hoodie</a></li><li><a href="hoodies.php?id=USAH001">USA Hoodie</a></li></ul>
+            <li class="has-submenu"><a href="hoodies.html">HOODIES <span class="arrow">▼</span></a>
+                <ul class="sub-menu"><li><a href="hoodies.html?id=BH001">Basic Hoodie</a></li><li><a href="hoodies.html?id=PH001">Porsche Hoodie</a></li><li><a href="hoodies.html?id=USAH001">USA Hoodie</a></li></ul>
             </li>
-            <li class="has-submenu"><a href="aothun.php">ÁO THUN <span class="arrow">▼</span></a>
+            <li class="has-submenu"><a href="aothun.html">ÁO THUN <span class="arrow">▼</span></a>
                 <ul class="sub-menu">
-                    <li><a href="aothun.php">Áo Thun ngắn tay <span class="arrow">▼</span></a>
-                        <ul class="sub-menu"><li><a href="aothun.php?id=W001">Áo Thun Watch</a></li><li><a href="aothun.php?id=POR001">Áo Thun Poscher</a></li><li><a href="aothun.php?id=USA001">Áo Thun USA</a></li></ul>
+                    <li><a href="aothun.html">Áo Thun ngắn tay <span class="arrow">▼</span></a>
+                        <ul class="sub-menu"><li><a href="aothun.html?id=W001">Áo Thun Watch</a></li><li><a href="aothun.html?id=POR001">Áo Thun Poscher</a></li><li><a href="aothun.html?id=USA001">Áo Thun USA</a></li></ul>
                     </li>
-                    <li><a href="aothundaitay.php">Áo Thun dài tay <span class="arrow">▼</span></a>
-                        <ul class="sub-menu"><li><a href="aothundaitay.php?id=RP001">Áo Thun Dài Tay Rapper</a></li><li><a href="aothundaitay.php?id=POR001">Áo Thun Dài Tay Poscher</a></li><li><a href="aothundaitay.php?id=USA001">Áo Thun Dài Tay USA</a></li></ul>
+                    <li><a href="aothundaitay.html">Áo Thun dài tay <span class="arrow">▼</span></a>
+                        <ul class="sub-menu"><li><a href="aothundaitay.html?id=RP001">Áo Thun Dài Tay Rapper</a></li><li><a href="aothundaitay.html?id=POR001">Áo Thun Dài Tay Poscher</a></li><li><a href="aothundaitay.html?id=USA001">Áo Thun Dài Tay USA</a></li></ul>
                     </li>
                 </ul>
             </li>
@@ -458,7 +457,7 @@
         
         const toast = document.createElement('div');
         toast.className = 'toast-message ' + type;
-        toast.textContent = message;
+        toast.innerHTML = message;
         document.body.appendChild(toast);
         
         setTimeout(() => {
@@ -487,11 +486,14 @@
         let total = 0;
         const cart = getCart();
         
+        console.log('🛒 Giỏ hàng:', cart);
+        
         if (cart && cart.length > 0) {
             cart.forEach(item => {
                 const price = parseInt(item.price) || 0;
                 const qty = parseInt(item.qty) || 1;
                 total += price * qty;
+                console.log('📦', item.name, 'x', qty, '=', price * qty);
             });
         }
         
@@ -499,6 +501,7 @@
         total = total - discount;
         if (total < 0) total = 0;
         
+        console.log('💰 Tổng tiền:', total);
         return total;
     }
 
@@ -509,6 +512,49 @@
             totalElement.innerHTML = total.toLocaleString() + '<sup>₫</sup>';
         }
         return total;
+    }
+
+    // ===== KIỂM TRA TỒN KHO =====
+    function checkAllStock(items) {
+        return new Promise((resolve, reject) => {
+            let checks = items.map(item => {
+                return fetch('api/check-stock.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        product_id: item.code,
+                        size: item.size || '',
+                        color: item.color || '',
+                        quantity: item.quantity
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.success) {
+                        return { 
+                            item: item, 
+                            available: data.available || 0, 
+                            message: data.message,
+                            error: true 
+                        };
+                    }
+                    return { item: item, available: data.available, error: false };
+                });
+            });
+            
+            Promise.all(checks)
+                .then(results => {
+                    const errors = results.filter(r => r.error);
+                    if (errors.length > 0) {
+                        reject(errors);
+                    } else {
+                        resolve(results);
+                    }
+                })
+                .catch(error => {
+                    reject([{ message: 'Lỗi kiểm tra tồn kho: ' + error.message }]);
+                });
+        });
     }
 
     // ================= TẠO ĐƠN HÀNG =================
@@ -533,7 +579,6 @@
             // Lưu giỏ hàng vào biến tạm
             const cartData = JSON.parse(JSON.stringify(cart));
 
-            // Tính tổng tiền và tạo items
             let total = 0;
             const items = cartData.map(item => {
                 const price = parseInt(item.price) || 0;
@@ -553,7 +598,7 @@
             total = total - discount;
             if (total < 0) total = 0;
 
-            // Lưu dữ liệu đơn hàng vào localStorage
+            // LƯU VÀO LOCALSTORAGE ĐỂ DÙNG SAU
             const orderData = {
                 order_code: '',
                 customer: customerInfo,
@@ -562,47 +607,68 @@
             };
             localStorage.setItem('cottonusa_order_data', JSON.stringify(orderData));
 
-            fetch('api/create-order.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    name: customerInfo.name,
-                    phone: customerInfo.phone,
-                    address: customerInfo.address,
-                    payment_method: paymentMethod,
-                    total_amount: total,
-                    items: items
-                })
-            })
-            .then(response => {
-                const contentType = response.headers.get('content-type');
-                if (!contentType || !contentType.includes('application/json')) {
-                    return response.text().then(text => {
-                        throw new Error('Server trả về HTML: ' + text.substring(0, 100));
+            // ===== KIỂM TRA TỒN KHO TRƯỚC KHI ĐẶT HÀNG =====
+            showToast('⏳ Đang kiểm tra tồn kho...', 'info');
+            
+            checkAllStock(items)
+                .then(() => {
+                    // Nếu đủ hàng, tiếp tục đặt hàng
+                    console.log('📦 Đang gửi đơn hàng:', { customer: customerInfo, items: items, total: total });
+
+                    fetch('api/create-order.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            name: customerInfo.name,
+                            phone: customerInfo.phone,
+                            address: customerInfo.address,
+                            payment_method: paymentMethod,
+                            total_amount: total,
+                            items: items
+                        })
+                    })
+                    .then(response => {
+                        const contentType = response.headers.get('content-type');
+                        if (!contentType || !contentType.includes('application/json')) {
+                            return response.text().then(text => {
+                                throw new Error('Server trả về HTML: ' + text.substring(0, 100));
+                            });
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            const savedOrder = JSON.parse(localStorage.getItem('cottonusa_order_data') || '{}');
+                            savedOrder.order_code = data.order_code;
+                            localStorage.setItem('cottonusa_order_data', JSON.stringify(savedOrder));
+                            
+                            localStorage.removeItem('cottonusa_cart');
+                            localStorage.removeItem('cottonusa_order');
+                            resolve(data);
+                        } else {
+                            showToast('❌ ' + data.message, 'error');
+                            reject(data.message);
+                        }
+                    })
+                    .catch(error => {
+                        showToast('❌ Lỗi: ' + error.message, 'error');
+                        console.error('Error:', error);
+                        reject(error);
                     });
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.success) {
-                    // Cập nhật order code
-                    const savedOrder = JSON.parse(localStorage.getItem('cottonusa_order_data') || '{}');
-                    savedOrder.order_code = data.order_code;
-                    localStorage.setItem('cottonusa_order_data', JSON.stringify(savedOrder));
-                    
-                    localStorage.removeItem('cottonusa_cart');
-                    localStorage.removeItem('cottonusa_order');
-                    resolve(data);
-                } else {
-                    showToast('❌ ' + data.message, 'error');
-                    reject(data.message);
-                }
-            })
-            .catch(error => {
-                showToast('❌ Lỗi: ' + error.message, 'error');
-                console.error('Error:', error);
-                reject(error);
-            });
+                })
+                .catch(errors => {
+                    // Hiển thị lỗi tồn kho
+                    let errorMsg = '❌ Không đủ hàng cho các sản phẩm:<br>';
+                    errors.forEach(err => {
+                        if (err.item) {
+                            errorMsg += `• ${err.item.name} (Size: ${err.item.size || 'Mặc định'}) - Còn ${err.available} sản phẩm<br>`;
+                        } else {
+                            errorMsg += `• ${err.message}<br>`;
+                        }
+                    });
+                    showToast(errorMsg, 'error');
+                    reject(errors);
+                });
         });
     }
 
@@ -723,6 +789,9 @@
 
     // ================= INIT =================
     document.addEventListener('DOMContentLoaded', function() {
+        const cart = getCart();
+        console.log('🛒 Giỏ hàng khi load:', cart);
+        
         updateTotalDisplay();
         
         const customerInfo = JSON.parse(localStorage.getItem('cottonusa_customer_info') || '{}');
@@ -732,7 +801,6 @@
             }
         }
         
-        const cart = getCart();
         const badge = document.getElementById('cartBadge');
         if (badge) {
             const totalItems = cart.reduce((sum, item) => sum + (item.qty || 1), 0);
@@ -791,6 +859,6 @@
             }
         }
     });
-</script>
+    </script>
 </body>
 </html>

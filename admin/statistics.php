@@ -568,14 +568,11 @@ function ngayVietNam($date) {
                 <div class="date-wrapper">
                     <input type="date" id="to_date" value="<?php echo $to_date_input; ?>">
                 </div>
-                <button class="btn-filter" onclick="applyFilterCustom()"><i class="fas fa-filter"></i> Lọc</button>
+                <button class="btn-filter" onclick="applyFilterCustom()"><i class="fas fa-filter"></i> Tìm</button>
                 <button class="btn-reset" onclick="applyFilter('all')"><i class="fas fa-undo"></i> Tất cả</button>
             </div>
             <div>
-                <span style="font-size:13px;color:#888;">
-                    <i class="fas fa-info-circle"></i> 
-                    <?php echo count($orders); ?> đơn hàng (Đã xác nhận + Hoàn thành)
-                </span>
+                
             </div>
         </div>
 

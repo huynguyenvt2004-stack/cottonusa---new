@@ -13,11 +13,11 @@ $fullname = $_SESSION['admin_fullname'] ?? 'Admin';
 $success = '';
 $error = '';
 
-// Kết nối database
+// ===== KẾT NỐI DATABASE =====
 $host = 'localhost';
 $user = 'root';
 $pass = '';
-$db = 'cottonusa_db';
+$db = 'cottonusa';  // ← ĐÃ SỬA
 
 $conn = new mysqli($host, $user, $pass, $db);
 if ($conn->connect_error) {
@@ -415,7 +415,6 @@ $conn->close();
             gap: 20px;
         }
         
-        /* Info box thông báo */
         .info-box {
             background: #f0f7ff;
             border: 1px solid #b8d4f0;
@@ -494,15 +493,13 @@ $conn->close();
                 <div class="alert alert-error"><?php echo $error; ?></div>
             <?php endif; ?>
 
-            <!-- Info box -->
             <div class="info-box">
                 <i class="fas fa-info-circle"></i>
                 <strong>Số lượng nhập vào sẽ được áp dụng cho tất cả các màu của size đó.</strong>
-               
+              
             </div>
 
             <form method="POST" enctype="multipart/form-data">
-                <!-- Thông tin cơ bản -->
                 <div class="form-grid">
                     <div class="form-group">
                         <label>Mã sản phẩm</label>

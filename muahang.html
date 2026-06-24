@@ -8,6 +8,7 @@
     <title>Chi tiết sản phẩm - Cotton USA</title>
 </head>
 <body>
+    <!-- HEADER giữ nguyên (tôi đã rút gọn để tiết kiệm không gian) -->
     <header>
         <div class="logo">
             <img src="images/logo.avif" alt="Cotton USA">
@@ -58,20 +59,20 @@
                         </ul>
                     </li>
                 </ul>
-                 <li class="has-submenu">
+            </li>
+            <li class="has-submenu">
                 <a href="#">BỘ SƯU TẬP <span class="arrow">▼</span></a>
                 <ul class="sub-menu">
                     <li><a href="#">BỘ SƯU TẬP XE <span class="arrow">▼</span></a>
                         <ul class="sub-menu">
                             <li><a href="sweater.html?id=CS001">Car Sweater</a></li>
                             <li><a href="aothun.html?id=POR001">Áo Thun Poscher</a></li>
-                            <li><a href="hoodies.html?id=PH001">Hoodie Porsche </a></li>
+                            <li><a href="hoodies.html?id=PH001">Hoodie Porsche</a></li>
                             <li><a href="aothundaitay.html?id=POR001">Áo Thun Dài Tay Poscher</a></li>
-
                         </ul>
                     </li>
                     <li><a href="#">BỘ SƯU TẬP USA <span class="arrow">▼</span></a>
-                        <ul class="sub-menu"><li>
+                        <ul class="sub-menu">
                             <li><a href="hoodies.html?id=USAH001">Hoodie USA</a></li>
                             <li><a href="aothundaitay.html?id=USA001">Áo Thun Dài Tay USA</a></li>
                             <li><a href="aothun.html?id=USA001">Áo Thun USA</a></li>
@@ -798,58 +799,110 @@ const products = {
             return parseInt(priceStr.replace(/\./g, ''), 10);
         }
 
-        // NÚT THÊM VÀO GIỎ HÀNG
-        document.getElementById('btnThem').addEventListener('click', function() {
+        // ===== KIỂM TRA TỒN KHO =====
+        function checkStock(productId, size, color, quantity) {
+            return new Promise((resolve, reject) => {
+                fetch('api/check-stock.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        product_id: productId,
+                        size: size,
+                        color: color || '',
+                        quantity: quantity
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        resolve(data);
+                    } else {
+                        reject(data);
+                    }
+                })
+                .catch(error => {
+                    reject({ success: false, message: 'Lỗi kết nối: ' + error.message });
+                });
+            });
+        }
+
+        // ===== NÚT THÊM VÀO GIỎ HÀNG =====
+        document.getElementById('btnThem').addEventListener('click', async function() {
             if (!selectedSize) {
                 if (sizeWarning) sizeWarning.style.display = 'block';
                 toast('Vui lòng chọn size trước khi thêm vào giỏ!', 'error');
                 return;
             }
+            
             const activeSwatch = document.querySelector('.swatch-item.active');
             const selectedColor = activeSwatch ? activeSwatch.getAttribute('data-color') : product.colors[0].name;
             const qty = parseInt(document.getElementById('quantityInput').value) || 1;
             const priceNum = getPriceNumber(product.price);
             
-            window.addToCart({
-                id: productId,
-                name: product.name,
-                price: priceNum,
-                qty: qty,
-                size: selectedSize,
-                color: selectedColor,
-                img: document.getElementById('mainProductImage').src
-            });
-            toast('Đã thêm ' + qty + ' sản phẩm vào giỏ hàng!', 'success');
+            // KIỂM TRA TỒN KHO
+            try {
+                const stockData = await checkStock(productId, selectedSize, selectedColor, qty);
+                
+                // Nếu đủ hàng, thêm vào giỏ
+                window.addToCart({
+                    id: productId,
+                    name: product.name,
+                    price: priceNum,
+                    qty: qty,
+                    size: selectedSize,
+                    color: selectedColor,
+                    img: document.getElementById('mainProductImage').src
+                });
+                toast('✅ Đã thêm ' + qty + ' sản phẩm vào giỏ hàng!', 'success');
+                
+            } catch (error) {
+                if (error.available !== undefined) {
+                    toast('❌ ' + error.message, 'error');
+                } else {
+                    toast('❌ ' + error.message, 'error');
+                }
+            }
         });
 
-        // NÚT MUA HÀNG
-document.getElementById('btnMua').addEventListener('click', function() {
-    if (!selectedSize) {
-        if (sizeWarning) sizeWarning.style.display = 'block';
-        toast('Vui lòng chọn size trước khi mua hàng!', 'error');
-        return;
-    }
-    const activeSwatch = document.querySelector('.swatch-item.active');
-    const selectedColor = activeSwatch ? activeSwatch.getAttribute('data-color') : product.colors[0].name;
-    const qty = parseInt(document.getElementById('quantityInput').value) || 1;
-    const priceNum = getPriceNumber(product.price);
-    
-    // Tạo dữ liệu đơn hàng "mua ngay" chỉ gồm sản phẩm đang chọn
-    const buyNowItem = [{
-        id: productId,
-        name: product.name,
-        price: priceNum,
-        qty: qty,
-        size: selectedSize,
-        color: selectedColor,
-        img: document.getElementById('mainProductImage').src
-    }];
+        // ===== NÚT MUA HÀNG =====
+        document.getElementById('btnMua').addEventListener('click', async function() {
+            if (!selectedSize) {
+                if (sizeWarning) sizeWarning.style.display = 'block';
+                toast('Vui lòng chọn size trước khi mua hàng!', 'error');
+                return;
+            }
+            
+            const activeSwatch = document.querySelector('.swatch-item.active');
+            const selectedColor = activeSwatch ? activeSwatch.getAttribute('data-color') : product.colors[0].name;
+            const qty = parseInt(document.getElementById('quantityInput').value) || 1;
+            const priceNum = getPriceNumber(product.price);
+            
+            // KIỂM TRA TỒN KHO
+            try {
+                const stockData = await checkStock(productId, selectedSize, selectedColor, qty);
+                
+                // Nếu đủ hàng, tiến hành mua
+                const buyNowItem = [{
+                    id: productId,
+                    name: product.name,
+                    price: priceNum,
+                    qty: qty,
+                    size: selectedSize,
+                    color: selectedColor,
+                    img: document.getElementById('mainProductImage').src
+                }];
 
-    // Lưu riêng cho trang thanh toán, KHÔNG đụng vào giỏ hàng (cottonusa_cart)
-    localStorage.setItem('cottonusa_checkout', JSON.stringify(buyNowItem));
-
-    window.location.href = 'giaohang.html';
-});
+                localStorage.setItem('cottonusa_checkout', JSON.stringify(buyNowItem));
+                window.location.href = 'giaohang.html';
+                
+            } catch (error) {
+                if (error.available !== undefined) {
+                    toast('❌ ' + error.message, 'error');
+                } else {
+                    toast('❌ ' + error.message, 'error');
+                }
+            }
+        });
     </script>
 
     <!-- Dropdown overlay logic -->

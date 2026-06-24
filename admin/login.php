@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($username) || empty($password)) {
         $error = 'Vui lòng nhập tên đăng nhập và mật khẩu';
     } else {
-        $stmt = $conn->prepare("SELECT id, username, password, fullname, email, role FROM users WHERE username = ?");
+        $stmt = $conn->prepare("SELECT id, username, password, name, email, role FROM users WHERE username = ?");
         
         if ($stmt === false) {
             $error = 'Lỗi SQL: ' . $conn->error;

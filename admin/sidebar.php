@@ -23,7 +23,6 @@ $fullname = $_SESSION['admin_fullname'] ?? 'Admin';
         <a href="orders.php" class="<?php echo $current_page === 'orders.php' ? 'active' : ''; ?>">
             <i class="fas fa-shopping-cart"></i> Đơn hàng
         </a>
-        
         <div class="nav-label" style="font-size:11px; text-transform:uppercase; color:rgba(255,255,255,0.25); padding:12px 24px 8px 24px;">Nội dung</div>
         <a href="statistics.php" class="<?php echo $current_page === 'statistics.php' ? 'active' : ''; ?>">
             <i class="fas fa-chart-line"></i> Thống kê doanh thu

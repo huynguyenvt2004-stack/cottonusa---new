@@ -12,7 +12,7 @@
         <div class="logo">
             <img src="images/logo.avif" alt="Cotton USA">
         </div>
-      <ul class="MENU">
+        <ul class="MENU">
             <li><a href="index.html">TRANG CHỦ</a></li>
             <li class="has-submenu">
                 <a href="quan.html">QUẦN <span class="arrow">▼</span></a>
@@ -58,20 +58,20 @@
                         </ul>
                     </li>
                 </ul>
-                 <li class="has-submenu">
+            </li>
+            <li class="has-submenu">
                 <a href="#">BỘ SƯU TẬP <span class="arrow">▼</span></a>
                 <ul class="sub-menu">
                     <li><a href="#">BỘ SƯU TẬP XE <span class="arrow">▼</span></a>
                         <ul class="sub-menu">
                             <li><a href="sweater.html?id=CS001">Car Sweater</a></li>
                             <li><a href="aothun.html?id=POR001">Áo Thun Poscher</a></li>
-                            <li><a href="hoodies.html?id=PH001">Hoodie Porsche </a></li>
+                            <li><a href="hoodies.html?id=PH001">Hoodie Porsche</a></li>
                             <li><a href="aothundaitay.html?id=POR001">Áo Thun Dài Tay Poscher</a></li>
-
                         </ul>
                     </li>
                     <li><a href="#">BỘ SƯU TẬP USA <span class="arrow">▼</span></a>
-                        <ul class="sub-menu"><li>
+                        <ul class="sub-menu">
                             <li><a href="hoodies.html?id=USAH001">Hoodie USA</a></li>
                             <li><a href="aothundaitay.html?id=USA001">Áo Thun Dài Tay USA</a></li>
                             <li><a href="aothun.html?id=USA001">Áo Thun USA</a></li>
@@ -141,22 +141,48 @@
                     <div class="giaohang-content-left-khachle"><input checked name="loaikhach" type="radio" value="khachle"><p><span style="font-weight: bold;">Khách lẻ</span> (Nếu bạn muốn lưu lại thông tin)</p></div>
                     <div class="giaohang-content-left-dangky"><input name="loaikhach" type="radio" value="dangky"><p><span style="font-weight: bold;">Đăng ký</span> (Tạo mới tài khoản với thông tin bên dưới)</p></div>
                     <div class="giaohang-content-left-thongtin-top">
-                        <div class="giaohang-content-left-thongtin-top-item"><label>Họ tên<span style="color: red;">*</span></label><input type="text"></div>
-                        <div class="giaohang-content-left-thongtin-top-item"><label>Số điện thoại<span style="color: red;">*</span></label><input type="text"></div>
-                        <div class="giaohang-content-left-thongtin-top-item"><label>Tỉnh/Thành Phố<span style="color: red;">*</span></label><input type="text"></div>
-                        <div class="giaohang-content-left-thongtin-top-item"><label>Phường/Xã<span style="color: red;">*</span></label><input type="text"></div>
-                        <div class="giaohang-content-left-thongtin-top-item full"><label>Địa chỉ<span style="color: red;">*</span></label><input type="text"></div>
+                        <div class="giaohang-content-left-thongtin-top-item">
+                            <label>Họ tên<span style="color: red;">*</span></label>
+                            <input type="text" id="customerName">
+                        </div>
+                        <div class="giaohang-content-left-thongtin-top-item">
+                            <label>Số điện thoại<span style="color: red;">*</span></label>
+                            <input type="text" id="customerPhone">
+                        </div>
+                        <div class="giaohang-content-left-thongtin-top-item">
+                            <label>Tỉnh/Thành Phố<span style="color: red;">*</span></label>
+                            <input type="text" id="customerCity">
+                        </div>
+                        <div class="giaohang-content-left-thongtin-top-item">
+                            <label>Phường/Xã<span style="color: red;">*</span></label>
+                            <input type="text" id="customerWard">
+                        </div>
+                        <div class="giaohang-content-left-thongtin-top-item full">
+                            <label>Địa chỉ<span style="color: red;">*</span></label>
+                            <input type="text" id="customerAddress">
+                        </div>
                     </div>
                     <div class="giaohang-content-left-button">
                         <a href="muahang.html"><span>&#171;</span> Quay lại giỏ hàng</a>
-                        <button onclick="window.location.href='chuyentien.html'">THANH TOÁN VÀ GIAO HÀNG</button>
+                        <button id="btnGoPayment">THANH TOÁN VÀ GIAO HÀNG</button>
                     </div>
                 </div>
                 <div class="giaohang-content-right">
                     <table>
-                        <thead><tr><th>Sản phẩm</th><th>Đơn giá</th><th>Số lượng</th><th>Thành tiền</th></tr></thead>
-                        <tbody id="cartOrderItems"><tr><td colspan="4" style="text-align:center;">Đang tải...</td></tr></tbody>
-                        <tfoot id="cartOrderTotal"><tr><td colspan="3" style="font-weight: bold;">Tổng cộng:</td><td style="font-weight: bold; text-align: right;">0₫</td></tr></tfoot>
+                        <thead>
+                            <tr>
+                                <th>Sản phẩm</th>
+                                <th>Đơn giá</th>
+                                <th>Số lượng</th>
+                                <th>Thành tiền</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cartOrderItems">
+                            <tr><td colspan="4" style="text-align:center;padding:20px;color:#999;">Đang tải...</td></tr>
+                        </tbody>
+                        <tfoot id="cartOrderTotal">
+                            <tr><td colspan="3" style="font-weight: bold;">Tổng cộng:</td><td style="font-weight: bold; text-align: right;">0₫</td></tr>
+                        </tfoot>
                     </table>
                 </div>
             </div>
@@ -204,7 +230,122 @@
 
     <script src="js/cart-auth.js"></script>
     <script>
-        // ================= CART/AUTH DROPDOWN (Fix lỗi tương tác: xóa & thanh toán & login/register) =================
+        // ================= Hàm format giá =================
+        function formatPrice(price) {
+            return price.toLocaleString('vi-VN') + 'đ';
+        }
+
+        // ================= Lấy giỏ hàng =================
+        function getCart() {
+            try {
+                const cart = localStorage.getItem('cottonusa_cart');
+                return cart ? JSON.parse(cart) : [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        // ================= HIỂN THỊ ĐƠN HÀNG =================
+        function displayOrder() {
+            var cartItems = [];
+            var total = 0;
+
+            // 1. Kiểm tra dữ liệu "MUA NGAY" từ cottonusa_checkout
+            var checkoutData = localStorage.getItem('cottonusa_checkout');
+            if (checkoutData) {
+                try {
+                    cartItems = JSON.parse(checkoutData);
+                    console.log('📦 Mua ngay - Sản phẩm:', cartItems);
+                } catch(e) {
+                    cartItems = [];
+                }
+            }
+
+            // 2. Nếu không có dữ liệu mua ngay, lấy từ giỏ hàng
+            if (!cartItems || cartItems.length === 0) {
+                cartItems = getCart();
+                console.log('🛒 Giỏ hàng - Sản phẩm:', cartItems);
+            }
+
+            var tbody = document.getElementById('cartOrderItems');
+            var totalSpan = document.getElementById('cartOrderTotal');
+
+            if (cartItems && cartItems.length > 0) {
+                var html = '';
+                for (var i = 0; i < cartItems.length; i++) {
+                    var item = cartItems[i];
+                    var price = parseInt(item.price) || 0;
+                    var qty = parseInt(item.qty) || 1;
+                    var subtotal = price * qty;
+                    total += subtotal;
+                    html += '<tr>'
+                        + '<td>' + item.name + (item.size ? ' (Size: ' + item.size + ')' : '') + (item.color ? ' - ' + item.color : '') + '</td>'
+                        + '<td>' + formatPrice(price) + '</td>'
+                        + '<td>' + qty + '</td>'
+                        + '<td>' + formatPrice(subtotal) + '</td>'
+                        + '</tr>';
+                }
+                tbody.innerHTML = html;
+                totalSpan.innerHTML = '<tr><td colspan="3" style="font-weight: bold;">Tổng cộng:</td><td style="font-weight: bold; text-align: right;">' + formatPrice(total) + '</td></tr>';
+            } else {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:30px;color:#999;">🛒 Giỏ hàng trống</td></tr>';
+                totalSpan.innerHTML = '<tr><td colspan="3" style="font-weight: bold;">Tổng cộng:</td><td style="font-weight: bold; text-align: right;">0₫</td></tr>';
+            }
+
+            // Lưu tổng tiền vào localStorage để dùng ở trang thanh toán
+            localStorage.setItem('cottonusa_order_total', total);
+            
+            return cartItems;
+        }
+
+        // ================= NÚT THANH TOÁN =================
+        document.getElementById('btnGoPayment').addEventListener('click', function() {
+            var name = document.getElementById('customerName').value.trim();
+            var phone = document.getElementById('customerPhone').value.trim();
+            var city = document.getElementById('customerCity').value.trim();
+            var ward = document.getElementById('customerWard').value.trim();
+            var address = document.getElementById('customerAddress').value.trim();
+
+            if (!name || !phone || !city || !ward || !address) {
+                alert('❌ Vui lòng nhập đầy đủ thông tin giao hàng!');
+                return;
+            }
+
+            // Lấy giỏ hàng hiện tại
+            var cartItems = [];
+            var checkoutData = localStorage.getItem('cottonusa_checkout');
+            if (checkoutData) {
+                try {
+                    cartItems = JSON.parse(checkoutData);
+                } catch(e) {
+                    cartItems = [];
+                }
+            }
+            if (!cartItems || cartItems.length === 0) {
+                cartItems = getCart();
+            }
+
+            // Lưu giỏ hàng để dùng ở trang thanh toán
+            localStorage.setItem('cottonusa_cart', JSON.stringify(cartItems));
+            
+            // Xóa dữ liệu checkout cũ
+            localStorage.removeItem('cottonusa_checkout');
+
+            // Lưu thông tin khách hàng
+            localStorage.setItem(
+                'cottonusa_customer_info',
+                JSON.stringify({
+                    name: name,
+                    phone: phone,
+                    address: address + ', ' + ward + ', ' + city
+                })
+            );
+
+            // Chuyển sang trang thanh toán
+            window.location.href = 'chuyentien.html';
+        });
+
+        // ================= CART/AUTH DROPDOWN =================
         (function initHeaderDropdowns() {
             const cartBtn = document.getElementById('cartBtn');
             const cartDropdown = document.getElementById('cartDropdown');
@@ -247,36 +388,10 @@
             document.addEventListener('click', function () { closeAll(); });
         })();
 
-        // Hiển thị đơn hàng từ giỏ
-        var checkoutData = localStorage.getItem('cottonusa_checkout');
-        var cartItems = checkoutData ? JSON.parse(checkoutData) : getCart();
-
-        // Xóa dữ liệu "mua ngay" sau khi đã lấy ra, để lần sau không bị hiển thị lại
-        // (nếu thanh toán từ giỏ hàng, cottonusa_checkout sẽ được tạo mới mỗi lần bấm "Thanh toán ngay")
-        localStorage.removeItem('cottonusa_checkout');
-        
-        var tbody = document.getElementById('cartOrderItems');
-        var totalSpan = document.getElementById('cartOrderTotal');
-        var total = 0;
-        
-        if (cartItems && cartItems.length > 0) {
-            var html = '';
-            for (var i = 0; i < cartItems.length; i++) {
-                var item = cartItems[i];
-                var subtotal = item.price * item.qty;
-                total += subtotal;
-                html += '<tr>'
-                    + '<td>' + item.name + (item.size ? ' (Size: ' + item.size + ')' : '') + (item.color ? ' - ' + item.color : '') + '</td>'
-                    + '<td>' + formatPrice(item.price) + '</td>'
-                    + '<td>' + item.qty + '</td>'
-                    + '<td>' + formatPrice(subtotal) + '</td>'
-                    + '</tr>';
-            }
-            tbody.innerHTML = html;
-            totalSpan.innerHTML = '<tr><td colspan="3" style="font-weight: bold;">Tổng cộng:</td><td style="font-weight: bold; text-align: right;">' + formatPrice(total) + '</td></tr>';
-        } else {
-            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Giỏ hàng trống</td></tr>';
-        }
+        // ================= KHỞI TẠO =================
+        document.addEventListener('DOMContentLoaded', function() {
+            displayOrder();
+        });
     </script>
 </body>
 </html>
