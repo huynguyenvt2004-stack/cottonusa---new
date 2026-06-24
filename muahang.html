@@ -22,25 +22,30 @@
                 </ul>
             </li>
             <li class="has-submenu">
-                <a href="sweater.html">SWEATERS <span class="arrow">▼</span></a>
-                <ul class="sub-menu"><li>
-                    <a href="sweater.html?id=US001">University Sweater</a>
-                </li><li><a href="sweater.html?id=CS001">Car Sweater</a></li>
-                <li><a href="sweater.html?id=FS001">Floral Sweater</a></li>
-            </ul>
-            </li>
-            <li class="has-submenu"><a href="hoodies.html">HOODIES <span class="arrow">▼</span></a>
-                <ul class="sub-menu"><li>
-                    <a href="hoodies.html?id=BH001">Basic Hoodie</a></li>
-                    <li><a href="hoodies.html?id=PH001">Porsche Hoodie</a></li>
-                    <li><a href="hoodies.html?id=USAH001">USA Hoodie</a></li>
+                <a href="#">ÁO NỈ <span class="arrow">▼</span></a>
+                <ul class="sub-menu">
+                    <li><a href="sweater.html">SWEATERS <span class="arrow">▼</span></a>
+                        <ul class="sub-menu">
+                            <li><a href="sweater.html?id=US001">University Sweater</a></li>
+                            <li><a href="sweater.html?id=CS001">Car Sweater</a></li>
+                            <li><a href="sweater.html?id=FS001">Floral Sweater</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="hoodies.html">HOODIES <span class="arrow">▼</span></a>
+                        <ul class="sub-menu"><li>
+                            <a href="hoodies.html?id=BH001">Basic Hoodie</a></li>
+                            <li><a href="hoodies.html?id=PH001">Porsche Hoodie</a></li>
+                            <li><a href="hoodies.html?id=USH001">USA Hoodie</a></li>
+                        </ul>
+                    </li>
                 </ul>
             </li>
-            <li class="has-submenu"><a href="aothundaitay.html">ÁO THUN <span class="arrow">▼</span></a>
+            <li class="has-submenu">
+                <a href="#">ÁO THUN <span class="arrow">▼</span></a>
                 <ul class="sub-menu">
                     <li><a href="aothun.html">Áo Thun ngắn tay <span class="arrow">▼</span></a>
-                        <ul class="sub-menu"><li>
-                            <a href="aothun.html?id=W001">Áo Thun Watch</a></li>
+                        <ul class="sub-menu">
+                            <li><a href="aothun.html?id=W001">Áo Thun Watch</a></li>
                             <li><a href="aothun.html?id=POR001">Áo Thun Poscher</a></li>
                             <li><a href="aothun.html?id=USA001">Áo Thun USA</a></li>
                         </ul>
@@ -49,6 +54,27 @@
                         <ul class="sub-menu"><li>
                             <a href="aothundaitay.html?id=RP001">Áo Thun Dài Tay Rapper</a></li>
                             <li><a href="aothundaitay.html?id=POR001">Áo Thun Dài Tay Poscher</a></li>
+                            <li><a href="aothundaitay.html?id=USA001">Áo Thun Dài Tay USA</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                 <li class="has-submenu">
+                <a href="#">BỘ SƯU TẬP <span class="arrow">▼</span></a>
+                <ul class="sub-menu">
+                    <li><a href="#">BỘ SƯU TẬP XE <span class="arrow">▼</span></a>
+                        <ul class="sub-menu">
+                            <li><a href="sweater.html?id=CS001">Car Sweater</a></li>
+                            <li><a href="aothun.html?id=POR001">Áo Thun Poscher</a></li>
+                            <li><a href="hoodies.html?id=PH001">Hoodie Porsche </a></li>
+                            <li><a href="aothundaitay.html?id=POR001">Áo Thun Dài Tay Poscher</a></li>
+
+                        </ul>
+                    </li>
+                    <li><a href="#">BỘ SƯU TẬP USA <span class="arrow">▼</span></a>
+                        <ul class="sub-menu"><li>
+                            <li><a href="hoodies.html?id=USAH001">Hoodie USA</a></li>
+                            <li><a href="aothundaitay.html?id=USA001">Áo Thun Dài Tay USA</a></li>
+                            <li><a href="aothun.html?id=USA001">Áo Thun USA</a></li>
                             <li><a href="aothundaitay.html?id=USA001">Áo Thun Dài Tay USA</a></li>
                         </ul>
                     </li>
@@ -808,8 +834,8 @@ document.getElementById('btnMua').addEventListener('click', function() {
     const qty = parseInt(document.getElementById('quantityInput').value) || 1;
     const priceNum = getPriceNumber(product.price);
     
-    // Tạo giỏ hàng mới chỉ gồm sản phẩm đang chọn
-    const newCart = [{
+    // Tạo dữ liệu đơn hàng "mua ngay" chỉ gồm sản phẩm đang chọn
+    const buyNowItem = [{
         id: productId,
         name: product.name,
         price: priceNum,
@@ -818,12 +844,10 @@ document.getElementById('btnMua').addEventListener('click', function() {
         color: selectedColor,
         img: document.getElementById('mainProductImage').src
     }];
-    
-    // Lưu vào giỏ hàng chính
-    localStorage.setItem('cottonusa_cart', JSON.stringify(newCart));
-    // Xóa dữ liệu checkout cũ để tránh hiển thị sản phẩm sai
-    localStorage.removeItem('cottonusa_checkout');
-    
+
+    // Lưu riêng cho trang thanh toán, KHÔNG đụng vào giỏ hàng (cottonusa_cart)
+    localStorage.setItem('cottonusa_checkout', JSON.stringify(buyNowItem));
+
     window.location.href = 'giaohang.html';
 });
     </script>

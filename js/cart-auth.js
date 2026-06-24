@@ -43,11 +43,12 @@ window.removeFromCart = function (index) {
 
 window.formatPrice = function (price) {
     if (isNaN(price)) price = 0;
-    return Number(price).toLocaleString('vi-VN') + 'đ';
+    return Number(price).toLocaleString('vi-VN') + '₫';
 };
 
 window.escapeHtml = function (str) {
     if (!str) return '';
+
     return str.replace(/[&<>]/g, function (m) {
         if (m === '&') return '&amp;';
         if (m === '<') return '&lt;';
@@ -162,10 +163,15 @@ window.checkout = function () {
     window.location.href = 'giaohang.html';
 };
 
-// ==================== ĐĂNG NHẬP / ĐĂNG KÝ ====================
-
-// Đường dẫn API (thay đổi theo server của bạn)
-const API_BASE = '/cottonusa/api';
+// ==================== API ĐĂNG NHẬP / ĐĂNG KÝ ====================
+// Đường dẫn tới API PHP — tự động lấy theo vị trí file HTML đang chạy
+const API_BASE = (function () {
+    // Lấy path gốc của website, ví dụ: /cottonusa
+    const parts = window.location.pathname.split('/');
+    // parts[0] = '', parts[1] = 'cottonusa', ...
+    const root = parts.length > 1 ? '/' + parts[1] : '';
+    return root + '/api';
+})();
 
 function getCurrentUser() {
     try {
@@ -182,6 +188,7 @@ function setCurrentUser(user) {
     } else {
         localStorage.removeItem('cottonusa_current_user');
     }
+
     updateAuthUI();
 }
 
@@ -198,16 +205,28 @@ window.doRegister = async function () {
         return;
     }
 
-    errorDiv.style.display = 'none';
-
     try {
+        // Gửi dữ liệu lên server để lưu vào database
         const res = await fetch(API_BASE + '/register.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ name, email, password })
         });
 
-        const data = await res.json();
+        if (!res.ok) {
+            errorDiv.textContent = `Lỗi server: HTTP ${res.status}. Kiểm tra lại đường dẫn API (${API_BASE})`;
+            errorDiv.style.display = 'block';
+            return;
+        }
+
+        let data;
+        try {
+            data = await res.json();
+        } catch (jsonErr) {
+            errorDiv.textContent = 'Server trả về dữ liệu không hợp lệ. Kiểm tra file register.php';
+            errorDiv.style.display = 'block';
+            return;
+        }
 
         if (!data.success) {
             errorDiv.textContent = data.error || 'Đăng ký thất bại';
@@ -215,19 +234,21 @@ window.doRegister = async function () {
             return;
         }
 
+        // Lưu thông tin user để lần sau tự động đăng nhập
         setCurrentUser(data.user);
 
-        // Đóng dropdown
+        errorDiv.style.display = 'none';
+
         const authDropdown = document.getElementById('authDropdown');
         const overlay = document.getElementById('dropdownOverlay');
         if (authDropdown) authDropdown.classList.remove('open');
         if (overlay) overlay.classList.remove('active');
 
-        alert('✅ Đăng ký thành công!');
+        alert('Đăng ký thành công!');
     } catch (e) {
-        errorDiv.textContent = 'Lỗi kết nối server';
+        console.error('Register error:', e);
+        errorDiv.textContent = `Lỗi kết nối server. Đường dẫn API đang dùng: ${API_BASE}/register.php`;
         errorDiv.style.display = 'block';
-        console.error('Lỗi đăng ký:', e);
     }
 };
 
@@ -237,22 +258,28 @@ window.doLogin = async function () {
 
     const errorDiv = document.getElementById('loginError');
 
-    if (!email || !password) {
-        errorDiv.textContent = 'Vui lòng nhập email và mật khẩu';
-        errorDiv.style.display = 'block';
-        return;
-    }
-
-    errorDiv.style.display = 'none';
-
     try {
+        // Gửi email + mật khẩu lên server để kiểm tra trong database
         const res = await fetch(API_BASE + '/login.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password })
         });
 
-        const data = await res.json();
+        if (!res.ok) {
+            errorDiv.textContent = `Lỗi server: HTTP ${res.status}. Kiểm tra lại đường dẫn API (${API_BASE})`;
+            errorDiv.style.display = 'block';
+            return;
+        }
+
+        let data;
+        try {
+            data = await res.json();
+        } catch (jsonErr) {
+            errorDiv.textContent = 'Server trả về dữ liệu không hợp lệ. Kiểm tra file login.php';
+            errorDiv.style.display = 'block';
+            return;
+        }
 
         if (!data.success) {
             errorDiv.textContent = data.error || 'Sai email hoặc mật khẩu';
@@ -260,25 +287,28 @@ window.doLogin = async function () {
             return;
         }
 
+        // Lưu thông tin user để lần sau tự động đăng nhập
         setCurrentUser(data.user);
 
-        // Đóng dropdown
+        errorDiv.style.display = 'none';
+
         const authDropdown = document.getElementById('authDropdown');
         const overlay = document.getElementById('dropdownOverlay');
         if (authDropdown) authDropdown.classList.remove('open');
         if (overlay) overlay.classList.remove('active');
 
-        alert('✅ Đăng nhập thành công!');
+        alert('Đăng nhập thành công!');
     } catch (e) {
-        errorDiv.textContent = 'Lỗi kết nối server';
+        console.error('Login error:', e);
+        errorDiv.textContent = `Lỗi kết nối server. Đường dẫn API đang dùng: ${API_BASE}/login.php`;
         errorDiv.style.display = 'block';
-        console.error('Lỗi đăng nhập:', e);
     }
 };
 
 window.doLogout = function () {
     setCurrentUser(null);
 
+    // Ferme le dropdown après déconnexion
     const authDropdown = document.getElementById('authDropdown');
     const overlay = document.getElementById('dropdownOverlay');
     if (authDropdown) authDropdown.classList.remove('open');
@@ -299,6 +329,7 @@ window.switchTab = function (tab) {
         registerPanel.style.display = 'block';
     }
 
+    // Met à jour la classe active sur les boutons onglets
     document.querySelectorAll('.auth-tab').forEach(function (btn) {
         btn.classList.toggle('active', btn.getAttribute('onclick') === "switchTab('" + tab + "')");
     });
@@ -325,7 +356,6 @@ function updateAuthUI() {
     }
 }
 
-// ==================== KHỞI TẠO ====================
 document.addEventListener('DOMContentLoaded', function () {
     window.updateCartUI();
     updateAuthUI();
