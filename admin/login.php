@@ -198,7 +198,7 @@ $conn->close();
             <img src="../images/logo.avif" alt="CottonUSA">
         </div>
         <h1>Đăng nhập</h1>
-        <p class="sub">Quản trị hệ thống CottonUSA</p>
+       
         
         <?php if ($error): ?>
             <div class="error">

@@ -1,4 +1,6 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 session_start();
 
 // Kiểm tra đăng nhập
@@ -8,6 +10,7 @@ if (!isset($_SESSION['admin_id']) || !isset($_SESSION['admin_username'])) {
 }
 
 $fullname = $_SESSION['admin_fullname'] ?? 'Admin';
+$current_page = basename($_SERVER['PHP_SELF']);
 $success = '';
 $error = '';
 
@@ -15,7 +18,7 @@ $error = '';
 $host = 'localhost';
 $user = 'root';
 $pass = '';
-$db = 'cottonusa_db';
+$db = 'cottonusa';
 
 $conn = new mysqli($host, $user, $pass, $db);
 if ($conn->connect_error) {
@@ -69,12 +72,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->bind_param("sssds", $product_id, $product_name, $category, $price, $main_image);
         
         if ($stmt->execute()) {
-            // ===== LƯU SIZE + MÀU + SỐ LƯỢNG RIÊNG BIỆT =====
-            // Lọc bỏ giá trị rỗng
+            // Lưu size + màu + số lượng
             $valid_sizes = array_filter($sizes, function($s) { return trim($s) !== ''; });
             $valid_colors = array_filter($colors, function($c) { return trim($c) !== ''; });
             
-            // Nếu có cả size và màu
             if (!empty($valid_sizes) && !empty($valid_colors)) {
                 foreach ($valid_sizes as $size) {
                     foreach ($valid_colors as $color) {
@@ -84,9 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $stmt2->close();
                     }
                 }
-            }
-            // Nếu chỉ có size (không có màu)
-            elseif (!empty($valid_sizes) && empty($valid_colors)) {
+            } elseif (!empty($valid_sizes) && empty($valid_colors)) {
                 foreach ($valid_sizes as $size) {
                     $stmt2 = $conn->prepare("INSERT INTO product_stock (product_id, size_name, color_name, stock) VALUES (?, ?, ?, ?)");
                     $color_name = 'Mặc định';
@@ -94,9 +93,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $stmt2->execute();
                     $stmt2->close();
                 }
-            }
-            // Nếu chỉ có màu (không có size)
-            elseif (empty($valid_sizes) && !empty($valid_colors)) {
+            } elseif (empty($valid_sizes) && !empty($valid_colors)) {
                 foreach ($valid_colors as $color) {
                     $stmt2 = $conn->prepare("INSERT INTO product_stock (product_id, size_name, color_name, stock) VALUES (?, ?, ?, ?)");
                     $size_name = 'Mặc định';
@@ -106,7 +103,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
             
-            // Thêm màu sắc vào bảng product_colors (để hiển thị)
+            // Thêm màu sắc vào bảng product_colors
             if (!empty($color_images)) {
                 foreach ($color_images as $color_data) {
                     $stmt3 = $conn->prepare("INSERT INTO product_colors (product_id, color_name, image_url) VALUES (?, ?, ?)");
@@ -146,12 +143,10 @@ $conn->close();
             min-height: 100vh;
         }
 
-        /* ===== SIDEBAR ===== */
+        /* ===== SIDEBAR MÀU TRẮNG ===== */
         .sidebar {
-            width: 260px;
-            background: #1a1a2e;
-            color: #fff;
-            padding: 0;
+            width: 250px;
+            background: #ffffff;
             display: flex;
             flex-direction: column;
             position: fixed;
@@ -160,87 +155,92 @@ $conn->close();
             height: 100vh;
             overflow-y: auto;
             z-index: 100;
+            box-shadow: 2px 0 12px rgba(0,0,0,0.08);
+        }
+
+        .sidebar-brand {
+            padding: 24px 0 20px 0;
+            border-bottom: 1px solid #f0f0f0;
+            text-align: center;
+        }
+
+        .brand-link {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+        }
+
+        .brand-logo {
+            height: 70px;
+            width: auto;
+            display: block;
+            object-fit: contain;
             transition: transform 0.3s ease;
         }
-        .sidebar-brand {
-            padding: 24px 24px 20px;
-            border-bottom: 1px solid rgba(255,255,255,0.06);
-            display: flex;
-            align-items: center;
-            gap: 12px;
+
+        .brand-logo:hover {
+            transform: scale(1.05);
         }
-        .sidebar-brand img {
-            height: 40px;
-        }
-        .sidebar-brand span {
-            font-size: 18px;
-            font-weight: 700;
-            letter-spacing: 0.3px;
-        }
-        .sidebar-brand small {
-            font-size: 11px;
-            color: rgba(255,255,255,0.4);
-            font-weight: 400;
-            display: block;
-            margin-top: 2px;
-        }
+
         .sidebar-nav {
             flex: 1;
             padding: 16px 0;
         }
-        .sidebar-nav .nav-label {
+
+        .nav-label {
             font-size: 11px;
             text-transform: uppercase;
-            letter-spacing: 0.8px;
-            color: rgba(255,255,255,0.25);
-            padding: 8px 24px;
-            margin-top: 8px;
+            color: #aaa;
+            padding: 12px 24px 8px 24px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
         }
+
         .sidebar-nav a {
             display: flex;
             align-items: center;
             gap: 14px;
-            padding: 12px 24px;
-            color: rgba(255,255,255,0.6);
+            padding: 11px 24px;
+            color: #666;
             text-decoration: none;
             font-size: 14px;
-            font-weight: 500;
             transition: all 0.2s;
             border-left: 3px solid transparent;
         }
+
         .sidebar-nav a:hover {
-            background: rgba(255,255,255,0.05);
-            color: #fff;
+            background: #f5f5f5;
+            color: #1a1a2e;
         }
+
         .sidebar-nav a.active {
-            background: rgba(227, 6, 19, 0.15);
-            color: #fff;
+            background: rgba(227,6,19,0.08);
+            color: #e30613;
             border-left-color: #e30613;
+            font-weight: 600;
         }
+
         .sidebar-nav a i {
             width: 20px;
             text-align: center;
             font-size: 15px;
         }
-        .sidebar-nav a .badge {
-            background: #e30613;
-            color: #fff;
-            font-size: 10px;
-            padding: 2px 8px;
-            border-radius: 12px;
-            margin-left: auto;
-        }
+
         .sidebar-footer {
             padding: 16px 24px;
-            border-top: 1px solid rgba(255,255,255,0.06);
+            border-top: 1px solid #f0f0f0;
+            margin-top: auto;
         }
-        .sidebar-footer .user-info {
+
+        .user-info {
             display: flex;
             align-items: center;
             gap: 12px;
             margin-bottom: 10px;
         }
-        .sidebar-footer .user-info .avatar {
+
+        .avatar {
             width: 36px;
             height: 36px;
             border-radius: 50%;
@@ -250,17 +250,23 @@ $conn->close();
             justify-content: center;
             font-weight: 700;
             font-size: 14px;
+            color: #ffffff;
+            flex-shrink: 0;
         }
-        .sidebar-footer .user-info .name {
+
+        .name {
             font-size: 14px;
             font-weight: 600;
+            color: #1a1a2e;
         }
-        .sidebar-footer .user-info .role {
+
+        .role {
             font-size: 12px;
-            color: rgba(255,255,255,0.4);
+            color: #888;
         }
+
         .sidebar-footer a {
-            color: rgba(255,255,255,0.5);
+            color: #888;
             text-decoration: none;
             font-size: 13px;
             display: flex;
@@ -268,17 +274,19 @@ $conn->close();
             gap: 8px;
             transition: color 0.2s;
         }
-        .sidebar-footer a:hover { color: #e30613; }
+
+        .sidebar-footer a:hover {
+            color: #e30613;
+        }
 
         /* ===== MAIN CONTENT ===== */
         .main-content {
-            margin-left: 260px;
+            margin-left: 250px;
             flex: 1;
-            padding: 24px 32px 40px;
+            padding: 24px 32px;
             min-height: 100vh;
         }
 
-        /* ===== HEADER ===== */
         .page-header {
             display: flex;
             justify-content: space-between;
@@ -287,21 +295,13 @@ $conn->close();
             flex-wrap: wrap;
             gap: 12px;
         }
+
         .page-header h1 {
             font-size: 24px;
-            font-weight: 700;
             color: #1a1a2e;
         }
-        .page-header h1 span {
-            color: #e30613;
-        }
-        .page-header .header-actions {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
+        .page-header h1 span { color: #e30613; }
 
-        /* ===== BUTTONS ===== */
         .btn {
             padding: 10px 20px;
             border: none;
@@ -312,53 +312,18 @@ $conn->close();
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            transition: all 0.2s;
             text-decoration: none;
+            transition: all 0.2s;
         }
-        .btn-primary {
-            background: #e30613;
-            color: #fff;
-        }
-        .btn-primary:hover {
-            background: #c70510;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(227, 6, 19, 0.3);
-        }
-        .btn-secondary {
-            background: #e8e8e8;
-            color: #333;
-        }
-        .btn-secondary:hover {
-            background: #ddd;
-        }
-        .btn-success {
-            background: #22c55e;
-            color: #fff;
-        }
-        .btn-success:hover {
-            background: #16a34a;
-        }
-        .btn-danger {
-            background: #ef4444;
-            color: #fff;
-        }
-        .btn-danger:hover {
-            background: #dc2626;
-        }
-        .btn-outline {
-            background: transparent;
-            color: #666;
-            border: 2px solid #e0e0e0;
-        }
-        .btn-outline:hover {
-            border-color: #e30613;
-            color: #e30613;
-        }
-        .btn-sm {
-            padding: 6px 14px;
-            font-size: 12px;
-            border-radius: 8px;
-        }
+        .btn-primary { background: #e30613; color: #fff; }
+        .btn-primary:hover { background: #c70510; }
+        .btn-secondary { background: #e8e8e8; color: #333; }
+        .btn-secondary:hover { background: #ddd; }
+        .btn-success { background: #22c55e; color: #fff; }
+        .btn-success:hover { background: #16a34a; }
+        .btn-danger { background: #ef4444; color: #fff; }
+        .btn-danger:hover { background: #dc2626; }
+        .btn-sm { padding: 6px 14px; font-size: 12px; border-radius: 8px; }
 
         /* ===== FORM ===== */
         .form-card {
@@ -367,14 +332,17 @@ $conn->close();
             padding: 30px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
+
         .form-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 20px;
         }
+
         .form-group {
             margin-bottom: 18px;
         }
+
         .form-group label {
             display: block;
             font-weight: 600;
@@ -382,9 +350,11 @@ $conn->close();
             color: #333;
             margin-bottom: 6px;
         }
+
         .form-group label .required {
             color: #e30613;
         }
+
         .form-group input,
         .form-group select,
         .form-group textarea {
@@ -398,16 +368,19 @@ $conn->close();
             font-family: inherit;
             background: #fafafa;
         }
+
         .form-group input:focus,
         .form-group select:focus,
         .form-group textarea:focus {
             border-color: #e30613;
             background: #fff;
         }
+
         .form-group textarea {
             resize: vertical;
             min-height: 60px;
         }
+
         .full-width {
             grid-column: 1 / -1;
         }
@@ -419,12 +392,14 @@ $conn->close();
             padding: 16px;
             margin-bottom: 12px;
         }
+
         .dynamic-fields .field-row {
             display: flex;
             gap: 10px;
             align-items: center;
             margin-bottom: 8px;
         }
+
         .dynamic-fields .field-row input {
             flex: 1;
             padding: 8px 12px;
@@ -433,9 +408,11 @@ $conn->close();
             font-size: 14px;
             outline: none;
         }
+
         .dynamic-fields .field-row input:focus {
             border-color: #e30613;
         }
+
         .dynamic-fields .btn-remove {
             background: #fee2e2;
             color: #dc2626;
@@ -446,22 +423,12 @@ $conn->close();
             font-size: 12px;
             font-weight: 600;
         }
+
         .dynamic-fields .btn-remove:hover {
             background: #fecaca;
         }
 
-        /* ===== COLOR PREVIEW ===== */
-        .color-preview {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            border: 2px solid #e0e0e0;
-            vertical-align: middle;
-            margin-right: 6px;
-        }
-
-        /* ===== UPLOAD IMAGE ===== */
+        /* ===== UPLOAD ===== */
         .upload-area {
             border: 2px dashed #e0e0e0;
             border-radius: 10px;
@@ -471,25 +438,30 @@ $conn->close();
             transition: all 0.3s;
             background: #fafafa;
         }
+
         .upload-area:hover {
             border-color: #e30613;
             background: #fef0f0;
         }
+
         .upload-area i {
             font-size: 40px;
             color: #ccc;
             display: block;
             margin-bottom: 10px;
         }
+
         .upload-area p {
             color: #888;
             font-size: 14px;
         }
+
         .upload-area .file-name {
             color: #e30613;
             font-weight: 600;
             margin-top: 8px;
         }
+
         .upload-area input[type="file"] {
             display: none;
         }
@@ -500,6 +472,7 @@ $conn->close();
             gap: 12px;
             margin-top: 12px;
         }
+
         .image-preview-item {
             position: relative;
             border-radius: 8px;
@@ -507,11 +480,13 @@ $conn->close();
             border: 2px solid #e8e8e8;
             aspect-ratio: 1;
         }
+
         .image-preview-item img {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
+
         .image-preview-item .remove-img {
             position: absolute;
             top: 4px;
@@ -525,6 +500,7 @@ $conn->close();
             cursor: pointer;
             font-size: 12px;
         }
+
         .image-preview-item .remove-img:hover {
             background: #e30613;
         }
@@ -549,26 +525,28 @@ $conn->close();
         }
 
         /* ===== RESPONSIVE ===== */
-        @media (max-width: 1024px) {
-            .form-grid { grid-template-columns: 1fr; }
-            .full-width { grid-column: 1; }
-        }
-        @media (max-width: 768px) {
-            .sidebar { transform: translateX(-100%); }
-            .sidebar.open { transform: translateX(0); }
-            .main-content { margin-left: 0; padding: 16px; }
-            .image-preview-grid { grid-template-columns: repeat(2, 1fr); }
-        }
         .menu-toggle {
             display: none;
             background: none;
             border: none;
             font-size: 24px;
-            color: #333;
             cursor: pointer;
             padding: 4px;
         }
+
+        @media (max-width: 1024px) {
+            .form-grid { grid-template-columns: 1fr; }
+            .full-width { grid-column: 1; }
+        }
+
         @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            .sidebar.open { transform: translateX(0); }
+            .main-content { margin-left: 0; padding: 16px; }
+            .image-preview-grid { grid-template-columns: repeat(2, 1fr); }
             .menu-toggle { display: block; }
         }
     </style>
@@ -578,13 +556,14 @@ $conn->close();
     <!-- ===== SIDEBAR ===== -->
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-brand">
-            <img src="../images/logo.avif" alt="CottonUSA">
-            <div>
-                <span>CottonUSA</span>
-                <small>Quản trị hệ thống</small>
-            </div>
+            <a href="home.php" class="brand-link">
+                <img src="../images/logo.avif" alt="CottonUSA" class="brand-logo">
+            </a>
         </div>
         <nav class="sidebar-nav">
+            <a href="home.php">
+                <i class="fas fa-store"></i> Trang chính
+            </a>
             <div class="nav-label">Tổng quan</div>
             <a href="dashboard.php">
                 <i class="fas fa-chart-pie"></i> Thống kê
@@ -594,15 +573,8 @@ $conn->close();
             </a>
             <a href="orders.php">
                 <i class="fas fa-shopping-cart"></i> Đơn hàng
-                <span class="badge">12</span>
             </a>
-            <a href="#">
-                <i class="fas fa-warehouse"></i> Kho hàng
-            </a>
-            <div class="nav-label" style="margin-top:16px;">Nội dung</div>
-            <a href="#">
-                <i class="fas fa-newspaper"></i> Bài viết
-            </a>
+            <div class="nav-label">Nội dung</div>
             <a href="statistics.php">
                 <i class="fas fa-chart-line"></i> Thống kê doanh thu
             </a>
@@ -621,20 +593,16 @@ $conn->close();
 
     <!-- ===== MAIN CONTENT ===== -->
     <main class="main-content">
-        <!-- Header -->
         <div class="page-header">
             <div style="display:flex;align-items:center;gap:12px;">
-                <button class="menu-toggle" id="menuToggle">
-                    <i class="fas fa-bars"></i>
-                </button>
+                <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
                 <h1>➕ Thêm <span>Sản phẩm</span></h1>
             </div>
-            <div class="header-actions">
+            <div>
                 <a href="products.php" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Quay lại</a>
             </div>
         </div>
 
-        <!-- Form -->
         <div class="form-card">
             <?php if ($success): ?>
                 <div class="alert alert-success"><?php echo $success; ?></div>
@@ -664,7 +632,7 @@ $conn->close();
                         </select>
                     </div>
 
-                    <!-- Tên sản phẩm (full width) -->
+                    <!-- Tên sản phẩm -->
                     <div class="form-group full-width">
                         <label>Tên sản phẩm <span class="required">*</span></label>
                         <input type="text" name="product_name" placeholder="Nhập tên sản phẩm" required>
@@ -685,7 +653,7 @@ $conn->close();
                         </small>
                     </div>
 
-                    <!-- ===== SIZE ===== -->
+                    <!-- Size -->
                     <div class="form-group full-width">
                         <label>Size</label>
                         <div class="dynamic-fields" id="sizeContainer">
@@ -707,7 +675,7 @@ $conn->close();
                         </button>
                     </div>
 
-                    <!-- ===== MÀU SẮC ===== -->
+                    <!-- Màu sắc -->
                     <div class="form-group full-width">
                         <label>Màu sắc</label>
                         <div class="dynamic-fields" id="colorContainer">
@@ -729,7 +697,7 @@ $conn->close();
                         </button>
                     </div>
 
-                    <!-- ===== ẢNH CHÍNH ===== -->
+                    <!-- Ảnh chính -->
                     <div class="form-group full-width">
                         <label>Ảnh chính sản phẩm</label>
                         <div class="upload-area" id="mainImageUpload" onclick="document.getElementById('mainImageInput').click()">
@@ -741,7 +709,7 @@ $conn->close();
                         <div class="image-preview-grid" id="mainImagePreview"></div>
                     </div>
 
-                    <!-- ===== ẢNH MÀU ===== -->
+                    <!-- Ảnh màu -->
                     <div class="form-group full-width">
                         <label>Ảnh cho từng màu</label>
                         <p style="font-size:13px;color:#888;margin-bottom:10px;">Chọn ảnh tương ứng với màu sắc đã nhập ở trên</p>
@@ -755,7 +723,6 @@ $conn->close();
                     </div>
                 </div>
 
-                <!-- Submit -->
                 <div style="display:flex;gap:12px;margin-top:24px;">
                     <button type="submit" class="btn btn-success"><i class="fas fa-save"></i> Lưu sản phẩm</button>
                     <button type="reset" class="btn btn-secondary"><i class="fas fa-undo"></i> Làm mới</button>
@@ -765,12 +732,12 @@ $conn->close();
     </main>
 
     <script>
-        // ===== TOGGLE SIDEBAR =====
+        // Toggle sidebar mobile
         document.getElementById('menuToggle')?.addEventListener('click', function() {
             document.getElementById('sidebar').classList.toggle('open');
         });
 
-        // ===== ADD FIELD (Size / Color) =====
+        // Add field (Size / Color)
         function addField(containerId, placeholder, name) {
             const container = document.getElementById(containerId);
             const row = document.createElement('div');
@@ -782,7 +749,7 @@ $conn->close();
             container.appendChild(row);
         }
 
-        // ===== REMOVE FIELD =====
+        // Remove field
         function removeField(btn) {
             const row = btn.parentElement;
             const container = row.parentElement;
@@ -793,7 +760,7 @@ $conn->close();
             }
         }
 
-        // ===== PREVIEW MAIN IMAGE =====
+        // Preview main image
         document.getElementById('mainImageInput')?.addEventListener('change', function(e) {
             const file = this.files[0];
             if (file) {
@@ -811,7 +778,7 @@ $conn->close();
             }
         });
 
-        // ===== PREVIEW COLOR IMAGES =====
+        // Preview color images
         document.getElementById('colorImagesInput')?.addEventListener('change', function(e) {
             const files = this.files;
             const preview = document.getElementById('colorImagesPreview');
@@ -835,7 +802,7 @@ $conn->close();
             document.getElementById('colorImagesName').textContent = names.join(', ');
         });
 
-        // ===== UPLOAD AREA CLICK =====
+        // Drag and drop support
         document.querySelectorAll('.upload-area').forEach(area => {
             area.addEventListener('dragover', function(e) {
                 e.preventDefault();

@@ -10,6 +10,7 @@ if (!isset($_SESSION['admin_id']) || !isset($_SESSION['admin_username'])) {
 }
 
 $fullname = $_SESSION['admin_fullname'] ?? 'Admin';
+$current_page = basename($_SERVER['PHP_SELF']);
 
 // Kết nối database
 $host = 'localhost';
@@ -109,7 +110,7 @@ foreach ($products as $p) {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* ... giữ nguyên style từ trước ... */
+        /* ===== RESET & BASE ===== */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Inter', -apple-system, sans-serif;
@@ -117,10 +118,11 @@ foreach ($products as $p) {
             display: flex;
             min-height: 100vh;
         }
+
+        /* ===== SIDEBAR MÀU TRẮNG ===== */
         .sidebar {
             width: 250px;
-            background: #1a1a2e;
-            color: #fff;
+            background: #ffffff;
             display: flex;
             flex-direction: column;
             position: fixed;
@@ -129,50 +131,92 @@ foreach ($products as $p) {
             height: 100vh;
             overflow-y: auto;
             z-index: 100;
+            box-shadow: 2px 0 12px rgba(0,0,0,0.08);
         }
+
         .sidebar-brand {
+            padding: 24px 0 20px 0;
+            border-bottom: 1px solid #f0f0f0;
             text-align: center;
-            padding: 20px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.06);
         }
-        .sidebar-brand a { display: block; text-decoration: none; }
-        .sidebar-brand img { height: 50px; width: auto; display: block; margin: 0 auto; }
-        .sidebar-nav { flex: 1; padding: 16px 0; }
-        .sidebar-nav .nav-label {
+
+        .brand-link {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+        }
+
+        .brand-logo {
+            height: 70px;
+            width: auto;
+            display: block;
+            object-fit: contain;
+            transition: transform 0.3s ease;
+        }
+
+        .brand-logo:hover {
+            transform: scale(1.05);
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 16px 0;
+        }
+
+        .nav-label {
             font-size: 11px;
             text-transform: uppercase;
-            color: rgba(255,255,255,0.25);
-            padding: 8px 24px;
+            color: #aaa;
+            padding: 12px 24px 8px 24px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
         }
+
         .sidebar-nav a {
             display: flex;
             align-items: center;
             gap: 14px;
-            padding: 12px 24px;
-            color: rgba(255,255,255,0.6);
+            padding: 11px 24px;
+            color: #666;
             text-decoration: none;
             font-size: 14px;
             transition: all 0.2s;
             border-left: 3px solid transparent;
         }
-        .sidebar-nav a:hover { background: rgba(255,255,255,0.05); color: #fff; }
-        .sidebar-nav a.active {
-            background: rgba(227,6,19,0.15);
-            color: #fff;
-            border-left-color: #e30613;
+
+        .sidebar-nav a:hover {
+            background: #f5f5f5;
+            color: #1a1a2e;
         }
-        .sidebar-nav a i { width: 20px; text-align: center; }
+
+        .sidebar-nav a.active {
+            background: rgba(227,6,19,0.08);
+            color: #e30613;
+            border-left-color: #e30613;
+            font-weight: 600;
+        }
+
+        .sidebar-nav a i {
+            width: 20px;
+            text-align: center;
+            font-size: 15px;
+        }
+
         .sidebar-footer {
             padding: 16px 24px;
-            border-top: 1px solid rgba(255,255,255,0.08);
+            border-top: 1px solid #f0f0f0;
+            margin-top: auto;
         }
-        .sidebar-footer .user-info {
+
+        .user-info {
             display: flex;
             align-items: center;
             gap: 12px;
             margin-bottom: 10px;
         }
-        .sidebar-footer .user-info .avatar {
+
+        .avatar {
             width: 36px;
             height: 36px;
             border-radius: 50%;
@@ -181,25 +225,44 @@ foreach ($products as $p) {
             align-items: center;
             justify-content: center;
             font-weight: 700;
+            font-size: 14px;
+            color: #ffffff;
+            flex-shrink: 0;
         }
-        .sidebar-footer .user-info .name { font-size: 14px; font-weight: 600; }
-        .sidebar-footer .user-info .role { font-size: 12px; color: rgba(255,255,255,0.4); }
+
+        .name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1a1a2e;
+        }
+
+        .role {
+            font-size: 12px;
+            color: #888;
+        }
+
         .sidebar-footer a {
-            color: rgba(255,255,255,0.5);
+            color: #888;
             text-decoration: none;
             font-size: 13px;
             display: flex;
             align-items: center;
             gap: 8px;
+            transition: color 0.2s;
         }
-        .sidebar-footer a:hover { color: #e30613; }
-        
+
+        .sidebar-footer a:hover {
+            color: #e30613;
+        }
+
+        /* ===== MAIN CONTENT ===== */
         .main-content {
             margin-left: 250px;
             flex: 1;
             padding: 24px 32px;
             min-height: 100vh;
         }
+
         .page-header {
             display: flex;
             justify-content: space-between;
@@ -208,10 +271,14 @@ foreach ($products as $p) {
             flex-wrap: wrap;
             gap: 12px;
         }
-        .page-header h1 { font-size: 24px; color: #1a1a2e; }
+
+        .page-header h1 {
+            font-size: 24px;
+            color: #1a1a2e;
+        }
         .page-header h1 span { color: #e30613; }
         .page-header .date { font-size: 13px; color: #888; }
-        
+
         .btn {
             padding: 10px 20px;
             border: none;
@@ -235,7 +302,7 @@ foreach ($products as $p) {
         .btn-danger:hover { background: #dc2626; }
         .btn-sm { padding: 6px 14px; font-size: 12px; border-radius: 8px; }
         .btn-xs { padding: 4px 10px; font-size: 11px; border-radius: 6px; }
-        
+
         .toolbar {
             background: #fff;
             border-radius: 14px;
@@ -248,6 +315,7 @@ foreach ($products as $p) {
             gap: 12px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
+
         .search-box {
             display: flex;
             align-items: center;
@@ -258,6 +326,7 @@ foreach ($products as $p) {
             flex: 1;
             max-width: 400px;
         }
+
         .search-box:focus-within { border-color: #e30613; background: #fff; }
         .search-box input {
             border: none;
@@ -269,7 +338,7 @@ foreach ($products as $p) {
             font-family: inherit;
         }
         .search-box i { color: #aaa; font-size: 14px; }
-        
+
         .product-card {
             background: #fff;
             border-radius: 14px;
@@ -277,6 +346,7 @@ foreach ($products as $p) {
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
             margin-bottom: 16px;
         }
+
         .product-card .product-header {
             display: flex;
             align-items: center;
@@ -284,6 +354,7 @@ foreach ($products as $p) {
             cursor: pointer;
             padding: 4px 0;
         }
+
         .product-card .product-header img {
             width: 60px;
             height: 60px;
@@ -292,36 +363,43 @@ foreach ($products as $p) {
             border: 1px solid #e8e8e8;
             background: #fafafa;
         }
+
         .product-card .product-header .info {
             flex: 1;
         }
+
         .product-card .product-header .info .name {
             font-size: 16px;
             font-weight: 600;
             color: #1a1a2e;
         }
+
         .product-card .product-header .info .meta {
             font-size: 13px;
             color: #888;
             margin-top: 2px;
         }
+
         .product-card .product-header .info .meta .price {
             color: #e30613;
             font-weight: 600;
         }
+
         .product-card .product-header .toggle-icon {
             font-size: 18px;
             color: #aaa;
             transition: transform 0.3s;
         }
+
         .product-card .product-header .toggle-icon.open { transform: rotate(180deg); }
-        
+
         .variant-table {
             width: 100%;
             border-collapse: collapse;
             font-size: 14px;
             margin-top: 12px;
         }
+
         .variant-table thead th {
             text-align: left;
             padding: 10px 12px;
@@ -331,14 +409,16 @@ foreach ($products as $p) {
             text-transform: uppercase;
             font-weight: 600;
         }
+
         .variant-table tbody td {
             padding: 10px 12px;
             border-bottom: 1px solid #f5f5f5;
             vertical-align: middle;
         }
+
         .variant-table tbody tr:hover { background: #fafafa; }
         .variant-table tbody tr:last-child td { border-bottom: none; }
-        
+
         .color-dot {
             display: inline-block;
             width: 16px;
@@ -348,6 +428,7 @@ foreach ($products as $p) {
             vertical-align: middle;
             margin-right: 6px;
         }
+
         .size-badge {
             display: inline-block;
             padding: 2px 12px;
@@ -357,6 +438,7 @@ foreach ($products as $p) {
             background: #e8f0fe;
             color: #1a73e8;
         }
+
         .stock-badge {
             display: inline-block;
             padding: 2px 12px;
@@ -367,12 +449,13 @@ foreach ($products as $p) {
         .stock-in-stock { background: #dcfce7; color: #16a34a; }
         .stock-low { background: #fef3c7; color: #d97706; }
         .stock-out { background: #fee2e2; color: #dc2626; }
-        
+
         .stock-form {
             display: flex;
             gap: 8px;
             align-items: center;
         }
+
         .stock-form input {
             width: 80px;
             padding: 6px 10px;
@@ -382,7 +465,9 @@ foreach ($products as $p) {
             outline: none;
             text-align: center;
         }
+
         .stock-form input:focus { border-color: #e30613; }
+
         .stock-form .btn-update {
             padding: 6px 14px;
             border: none;
@@ -394,8 +479,9 @@ foreach ($products as $p) {
             color: #fff;
             transition: background 0.2s;
         }
+
         .stock-form .btn-update:hover { background: #c70510; }
-        
+
         .empty-state {
             text-align: center;
             padding: 60px 20px;
@@ -407,7 +493,7 @@ foreach ($products as $p) {
             margin-bottom: 16px;
             color: #ddd;
         }
-        
+
         .alert {
             padding: 14px 18px;
             border-radius: 10px;
@@ -425,16 +511,14 @@ foreach ($products as $p) {
             color: #dc2626;
             border: 1px solid #fecaca;
         }
-        
-        @media (max-width: 768px) {
-            .sidebar { transform: translateX(-100%); }
-            .sidebar.open { transform: translateX(0); }
-            .main-content { margin-left: 0; padding: 16px; }
-            .product-header { flex-wrap: wrap; }
-            .variant-table { font-size: 12px; }
-            .variant-table thead th, .variant-table tbody td { padding: 6px 8px; }
-            .stock-form input { width: 60px; }
+
+        .product-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
+
+        /* ===== RESPONSIVE ===== */
         .menu-toggle {
             display: none;
             background: none;
@@ -443,21 +527,63 @@ foreach ($products as $p) {
             cursor: pointer;
             padding: 4px;
         }
+
         @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            .sidebar.open { transform: translateX(0); }
+            .main-content { margin-left: 0; padding: 16px; }
+            .product-header { flex-wrap: wrap; }
+            .variant-table { font-size: 12px; }
+            .variant-table thead th, .variant-table tbody td { padding: 6px 8px; }
+            .stock-form input { width: 60px; }
             .menu-toggle { display: block; }
-        }
-        .product-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
         }
     </style>
 </head>
 <body>
 
-    <?php include 'sidebar.php'; ?>
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <a href="home.php" class="brand-link">
+                <img src="../images/logo.avif" alt="CottonUSA" class="brand-logo">
+            </a>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="home.php">
+                <i class="fas fa-store"></i> Trang chính
+            </a>
+            <div class="nav-label">Tổng quan</div>
+            <a href="dashboard.php">
+                <i class="fas fa-chart-pie"></i> Thống kê
+            </a>
+            <a href="products.php" class="active">
+                <i class="fas fa-tshirt"></i> Sản phẩm
+            </a>
+            <a href="orders.php">
+                <i class="fas fa-shopping-cart"></i> Đơn hàng
+            </a>
+            <div class="nav-label">Nội dung</div>
+            <a href="statistics.php">
+                <i class="fas fa-chart-line"></i> Thống kê doanh thu
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="avatar"><?php echo strtoupper(substr($fullname, 0, 1)); ?></div>
+                <div>
+                    <div class="name"><?php echo htmlspecialchars($fullname); ?></div>
+                    <div class="role">Administrator</div>
+                </div>
+            </div>
+            <a href="logout.php"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a>
+        </div>
+    </aside>
 
-    <!-- Main -->
+    <!-- ===== MAIN CONTENT ===== -->
     <main class="main-content">
         <div class="page-header">
             <div style="display:flex;align-items:center;gap:12px;">

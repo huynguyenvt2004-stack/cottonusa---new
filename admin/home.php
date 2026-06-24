@@ -10,6 +10,7 @@ if (!isset($_SESSION['admin_id']) || !isset($_SESSION['admin_username'])) {
 }
 
 $fullname = $_SESSION['admin_fullname'] ?? 'Admin';
+$current_page = basename($_SERVER['PHP_SELF']);
 
 // Kết nối database
 $host = 'localhost';
@@ -81,6 +82,7 @@ function statusText($status) {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        /* ===== RESET & BASE ===== */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Inter', -apple-system, sans-serif;
@@ -88,10 +90,11 @@ function statusText($status) {
             display: flex;
             min-height: 100vh;
         }
+
+        /* ===== SIDEBAR MÀU TRẮNG ===== */
         .sidebar {
             width: 250px;
-            background: #1a1a2e;
-            color: #fff;
+            background: #ffffff;
             display: flex;
             flex-direction: column;
             position: fixed;
@@ -100,50 +103,92 @@ function statusText($status) {
             height: 100vh;
             overflow-y: auto;
             z-index: 100;
+            box-shadow: 2px 0 12px rgba(0,0,0,0.08);
         }
+
         .sidebar-brand {
+            padding: 24px 0 20px 0;
+            border-bottom: 1px solid #f0f0f0;
             text-align: center;
-            padding: 20px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.06);
         }
-        .sidebar-brand a { display: block; text-decoration: none; }
-        .sidebar-brand img { height: 50px; width: auto; display: block; margin: 0 auto; }
-        .sidebar-nav { flex: 1; padding: 16px 0; }
-        .sidebar-nav .nav-label {
+
+        .brand-link {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+        }
+
+        .brand-logo {
+            height: 70px;
+            width: auto;
+            display: block;
+            object-fit: contain;
+            transition: transform 0.3s ease;
+        }
+
+        .brand-logo:hover {
+            transform: scale(1.05);
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 16px 0;
+        }
+
+        .nav-label {
             font-size: 11px;
             text-transform: uppercase;
-            color: rgba(255,255,255,0.25);
-            padding: 8px 24px;
+            color: #aaa;
+            padding: 12px 24px 8px 24px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
         }
+
         .sidebar-nav a {
             display: flex;
             align-items: center;
             gap: 14px;
-            padding: 12px 24px;
-            color: rgba(255,255,255,0.6);
+            padding: 11px 24px;
+            color: #666;
             text-decoration: none;
             font-size: 14px;
             transition: all 0.2s;
             border-left: 3px solid transparent;
         }
-        .sidebar-nav a:hover { background: rgba(255,255,255,0.05); color: #fff; }
-        .sidebar-nav a.active {
-            background: rgba(227,6,19,0.15);
-            color: #fff;
-            border-left-color: #e30613;
+
+        .sidebar-nav a:hover {
+            background: #f5f5f5;
+            color: #1a1a2e;
         }
-        .sidebar-nav a i { width: 20px; text-align: center; }
+
+        .sidebar-nav a.active {
+            background: rgba(227,6,19,0.08);
+            color: #e30613;
+            border-left-color: #e30613;
+            font-weight: 600;
+        }
+
+        .sidebar-nav a i {
+            width: 20px;
+            text-align: center;
+            font-size: 15px;
+        }
+
         .sidebar-footer {
             padding: 16px 24px;
-            border-top: 1px solid rgba(255,255,255,0.08);
+            border-top: 1px solid #f0f0f0;
+            margin-top: auto;
         }
-        .sidebar-footer .user-info {
+
+        .user-info {
             display: flex;
             align-items: center;
             gap: 12px;
             margin-bottom: 10px;
         }
-        .sidebar-footer .user-info .avatar {
+
+        .avatar {
             width: 36px;
             height: 36px;
             border-radius: 50%;
@@ -152,25 +197,44 @@ function statusText($status) {
             align-items: center;
             justify-content: center;
             font-weight: 700;
+            font-size: 14px;
+            color: #ffffff;
+            flex-shrink: 0;
         }
-        .sidebar-footer .user-info .name { font-size: 14px; font-weight: 600; }
-        .sidebar-footer .user-info .role { font-size: 12px; color: rgba(255,255,255,0.4); }
+
+        .name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1a1a2e;
+        }
+
+        .role {
+            font-size: 12px;
+            color: #888;
+        }
+
         .sidebar-footer a {
-            color: rgba(255,255,255,0.5);
+            color: #888;
             text-decoration: none;
             font-size: 13px;
             display: flex;
             align-items: center;
             gap: 8px;
+            transition: color 0.2s;
         }
-        .sidebar-footer a:hover { color: #e30613; }
-        
+
+        .sidebar-footer a:hover {
+            color: #e30613;
+        }
+
+        /* ===== MAIN CONTENT ===== */
         .main-content {
             margin-left: 250px;
             flex: 1;
             padding: 24px 32px;
             min-height: 100vh;
         }
+
         .page-header {
             display: flex;
             justify-content: space-between;
@@ -179,16 +243,41 @@ function statusText($status) {
             flex-wrap: wrap;
             gap: 12px;
         }
-        .page-header h1 { font-size: 24px; color: #1a1a2e; }
+
+        .page-header h1 {
+            font-size: 24px;
+            color: #1a1a2e;
+        }
         .page-header h1 span { color: #e30613; }
         .page-header .date { font-size: 13px; color: #888; }
-        
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .btn-primary { background: #e30613; color: #fff; }
+        .btn-primary:hover { background: #c70510; }
+        .btn-secondary { background: #e8e8e8; color: #333; }
+        .btn-secondary:hover { background: #ddd; }
+        .btn-sm { padding: 8px 16px; font-size: 13px; border-radius: 8px; }
+
+        /* ===== STATS ===== */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 18px;
             margin-bottom: 30px;
         }
+
         .stat-card {
             background: #fff;
             border-radius: 14px;
@@ -196,42 +285,50 @@ function statusText($status) {
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
             border-left: 4px solid #e30613;
         }
+
+        .stat-card:nth-child(2) { border-left-color: #3b82f6; }
+        .stat-card:nth-child(3) { border-left-color: #22c55e; }
+        .stat-card:nth-child(4) { border-left-color: #f59e0b; }
+
         .stat-card .stat-label {
             font-size: 13px;
             color: #888;
             margin-bottom: 4px;
         }
+
         .stat-card .stat-value {
             font-size: 28px;
             font-weight: 700;
             color: #1a1a2e;
         }
+
         .stat-card .stat-value .currency {
             font-size: 16px;
             color: #888;
             margin-left: 2px;
         }
-        .stat-card:nth-child(2) { border-left-color: #3b82f6; }
-        .stat-card:nth-child(3) { border-left-color: #22c55e; }
-        .stat-card:nth-child(4) { border-left-color: #f59e0b; }
-        
+
+        /* ===== TABLE ===== */
         .table-wrapper {
             background: #fff;
             border-radius: 14px;
             padding: 20px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
+
         .table-wrapper .table-title {
             font-size: 15px;
             font-weight: 600;
             color: #1a1a2e;
             margin-bottom: 12px;
         }
+
         .table-wrapper table {
             width: 100%;
             border-collapse: collapse;
             font-size: 14px;
         }
+
         .table-wrapper thead th {
             text-align: left;
             padding: 12px 12px;
@@ -241,14 +338,16 @@ function statusText($status) {
             font-size: 12px;
             text-transform: uppercase;
         }
+
         .table-wrapper tbody td {
             padding: 12px 12px;
             border-bottom: 1px solid #f5f5f5;
             color: #333;
             vertical-align: middle;
         }
+
         .table-wrapper tbody tr:hover { background: #fafafa; }
-        
+
         .status-badge {
             padding: 4px 14px;
             border-radius: 20px;
@@ -261,27 +360,8 @@ function statusText($status) {
         .status-shipping { background: #e8f5e9; color: #388e3c; }
         .status-completed { background: #dcfce7; color: #16a34a; }
         .status-cancelled { background: #fce4ec; color: #c62828; }
-        
-        .menu-toggle {
-            display: none;
-            background: none;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            padding: 4px;
-        }
-        @media (max-width: 768px) {
-            .sidebar { transform: translateX(-100%); }
-            .sidebar.open { transform: translateX(0); }
-            .main-content { margin-left: 0; padding: 16px; }
-            .stats-grid { grid-template-columns: 1fr 1fr; }
-            .table-wrapper { overflow-x: auto; }
-        }
-        @media (max-width: 480px) {
-            .stats-grid { grid-template-columns: 1fr; }
-        }
-        
-        /* Scroll cho bảng nếu nhiều đơn hàng */
+
+        /* ===== SCROLL ===== */
         .table-scroll {
             max-height: 500px;
             overflow-y: auto;
@@ -295,19 +375,45 @@ function statusText($status) {
         .table-scroll table thead th {
             background: #f8f9fa;
         }
+
+        /* ===== RESPONSIVE ===== */
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            .sidebar.open { transform: translateX(0); }
+            .main-content { margin-left: 0; padding: 16px; }
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+            .table-wrapper { overflow-x: auto; }
+            .menu-toggle { display: block; }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
 
-    <!-- Sidebar -->
+    <!-- ===== SIDEBAR ===== -->
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-brand">
-            <a href="home.php" style="display:block; text-decoration:none;">
-                <img src="../images/logo.avif" alt="CottonUSA">
+            <a href="home.php" class="brand-link">
+                <img src="../images/logo.avif" alt="CottonUSA" class="brand-logo">
             </a>
         </div>
         <nav class="sidebar-nav">
-            <a href="home.php" class="active" style="background:rgba(255,255,255,0.05);">
+            <a href="home.php" class="active">
                 <i class="fas fa-store"></i> Trang chính
             </a>
             <div class="nav-label">Tổng quan</div>
@@ -337,7 +443,7 @@ function statusText($status) {
         </div>
     </aside>
 
-    <!-- Main -->
+    <!-- ===== MAIN CONTENT ===== -->
     <main class="main-content">
         <div class="page-header">
             <div style="display:flex;align-items:center;gap:12px;">
@@ -346,7 +452,7 @@ function statusText($status) {
             </div>
             <div>
                 <span class="date"><i class="far fa-calendar-alt"></i> <?php echo date('d/m/Y'); ?></span>
-                <a href="orders.php" class="btn btn-primary btn-sm" style="background:#e30613;color:#fff;padding:8px 16px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:6px;margin-left:12px;">
+                <a href="orders.php" class="btn btn-primary btn-sm" style="margin-left:12px;">
                     <i class="fas fa-arrow-right"></i> Xem tất cả đơn hàng
                 </a>
             </div>
@@ -415,6 +521,7 @@ function statusText($status) {
     </main>
 
     <script>
+        // Toggle sidebar mobile
         document.getElementById('menuToggle')?.addEventListener('click', function() {
             document.getElementById('sidebar').classList.toggle('open');
         });

@@ -10,19 +10,18 @@ if (!isset($_SESSION['admin_id']) || !isset($_SESSION['admin_username'])) {
 }
 
 $fullname = $_SESSION['admin_fullname'] ?? 'Admin';
+$current_page = basename($_SERVER['PHP_SELF']);
 
 // ===== KẾT NỐI DATABASE =====
 $host = 'localhost';
 $user = 'root';
 $pass = '';
-$db = 'cottonusa';  // ← ĐÃ SỬA
+$db = 'cottonusa';
 
 $conn = new mysqli($host, $user, $pass, $db);
 if ($conn->connect_error) {
     die("Kết nối thất bại: " . $conn->connect_error);
 }
-
-// ... phần còn lại của file
 
 // Lấy danh sách đơn hàng
 $orders = [];
@@ -43,6 +42,7 @@ $conn->close();
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        /* ===== RESET & BASE ===== */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Inter', -apple-system, sans-serif;
@@ -50,10 +50,11 @@ $conn->close();
             display: flex;
             min-height: 100vh;
         }
+
+        /* ===== SIDEBAR MÀU TRẮNG ===== */
         .sidebar {
             width: 250px;
-            background: #1a1a2e;
-            color: #fff;
+            background: #ffffff;
             display: flex;
             flex-direction: column;
             position: fixed;
@@ -62,53 +63,92 @@ $conn->close();
             height: 100vh;
             overflow-y: auto;
             z-index: 100;
+            box-shadow: 2px 0 12px rgba(0,0,0,0.08);
         }
+
         .sidebar-brand {
-            padding: 20px 24px;
-            border-bottom: 1px solid rgba(255,255,255,0.08);
-            display: flex;
-            align-items: center;
-            gap: 12px;
+            padding: 24px 0 20px 0;
+            border-bottom: 1px solid #f0f0f0;
+            text-align: center;
         }
-        .sidebar-brand img { height: 40px; }
-        .sidebar-brand span { font-size: 18px; font-weight: 700; }
-        .sidebar-brand small { font-size: 11px; color: rgba(255,255,255,0.4); display: block; }
-        .sidebar-nav { flex: 1; padding: 16px 0; }
-        .sidebar-nav .nav-label {
+
+        .brand-link {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+        }
+
+        .brand-logo {
+            height: 70px;
+            width: auto;
+            display: block;
+            object-fit: contain;
+            transition: transform 0.3s ease;
+        }
+
+        .brand-logo:hover {
+            transform: scale(1.05);
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 16px 0;
+        }
+
+        .nav-label {
             font-size: 11px;
             text-transform: uppercase;
-            color: rgba(255,255,255,0.25);
-            padding: 8px 24px;
+            color: #aaa;
+            padding: 12px 24px 8px 24px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
         }
+
         .sidebar-nav a {
             display: flex;
             align-items: center;
             gap: 14px;
-            padding: 12px 24px;
-            color: rgba(255,255,255,0.6);
+            padding: 11px 24px;
+            color: #666;
             text-decoration: none;
             font-size: 14px;
             transition: all 0.2s;
             border-left: 3px solid transparent;
         }
-        .sidebar-nav a:hover { background: rgba(255,255,255,0.05); color: #fff; }
-        .sidebar-nav a.active {
-            background: rgba(227,6,19,0.15);
-            color: #fff;
-            border-left-color: #e30613;
+
+        .sidebar-nav a:hover {
+            background: #f5f5f5;
+            color: #1a1a2e;
         }
-        .sidebar-nav a i { width: 20px; text-align: center; }
+
+        .sidebar-nav a.active {
+            background: rgba(227,6,19,0.08);
+            color: #e30613;
+            border-left-color: #e30613;
+            font-weight: 600;
+        }
+
+        .sidebar-nav a i {
+            width: 20px;
+            text-align: center;
+            font-size: 15px;
+        }
+
         .sidebar-footer {
             padding: 16px 24px;
-            border-top: 1px solid rgba(255,255,255,0.08);
+            border-top: 1px solid #f0f0f0;
+            margin-top: auto;
         }
-        .sidebar-footer .user-info {
+
+        .user-info {
             display: flex;
             align-items: center;
             gap: 12px;
             margin-bottom: 10px;
         }
-        .sidebar-footer .user-info .avatar {
+
+        .avatar {
             width: 36px;
             height: 36px;
             border-radius: 50%;
@@ -117,26 +157,44 @@ $conn->close();
             align-items: center;
             justify-content: center;
             font-weight: 700;
+            font-size: 14px;
+            color: #ffffff;
+            flex-shrink: 0;
         }
-        .sidebar-footer .user-info .name { font-size: 14px; font-weight: 600; }
-        .sidebar-footer .user-info .role { font-size: 12px; color: rgba(255,255,255,0.4); }
+
+        .name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1a1a2e;
+        }
+
+        .role {
+            font-size: 12px;
+            color: #888;
+        }
+
         .sidebar-footer a {
-            color: rgba(255,255,255,0.5);
+            color: #888;
             text-decoration: none;
             font-size: 13px;
             display: flex;
             align-items: center;
             gap: 8px;
+            transition: color 0.2s;
         }
-        .sidebar-footer a:hover { color: #e30613; }
-        
-        
+
+        .sidebar-footer a:hover {
+            color: #e30613;
+        }
+
+        /* ===== MAIN CONTENT ===== */
         .main-content {
             margin-left: 250px;
             flex: 1;
             padding: 24px 32px;
             min-height: 100vh;
         }
+
         .page-header {
             display: flex;
             justify-content: space-between;
@@ -145,8 +203,13 @@ $conn->close();
             flex-wrap: wrap;
             gap: 12px;
         }
-        .page-header h1 { font-size: 24px; color: #1a1a2e; }
+
+        .page-header h1 {
+            font-size: 24px;
+            color: #1a1a2e;
+        }
         .page-header h1 span { color: #e30613; }
+
         .btn {
             padding: 10px 20px;
             border: none;
@@ -172,13 +235,14 @@ $conn->close();
         .btn-info:hover { background: #2563eb; }
         .btn-sm { padding: 6px 14px; font-size: 12px; border-radius: 8px; }
         .btn-xs { padding: 4px 10px; font-size: 11px; border-radius: 6px; }
-        
+
         .content-card {
             background: #fff;
             border-radius: 14px;
             padding: 24px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.06);
         }
+
         .table-toolbar {
             display: flex;
             justify-content: space-between;
@@ -186,11 +250,13 @@ $conn->close();
             flex-wrap: wrap;
             gap: 10px;
         }
+
         .table-toolbar .filter-group {
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
         }
+
         .table-toolbar .filter-group select,
         .table-toolbar .filter-group input {
             padding: 8px 14px;
@@ -200,19 +266,22 @@ $conn->close();
             outline: none;
             background: #fff;
         }
+
         .table-toolbar .filter-group select:focus,
         .table-toolbar .filter-group input:focus {
             border-color: #e30613;
         }
+
         .table-toolbar .filter-group input {
             min-width: 220px;
         }
-        
+
         table {
             width: 100%;
             border-collapse: collapse;
             font-size: 14px;
         }
+
         table thead th {
             text-align: left;
             padding: 12px 12px;
@@ -223,14 +292,16 @@ $conn->close();
             text-transform: uppercase;
             letter-spacing: 0.3px;
         }
+
         table tbody td {
             padding: 12px 12px;
             border-bottom: 1px solid #f5f5f5;
             color: #333;
             vertical-align: middle;
         }
+
         table tbody tr:hover { background: #fafafa; }
-        
+
         .status-badge {
             padding: 4px 14px;
             border-radius: 20px;
@@ -241,9 +312,9 @@ $conn->close();
         .status-pending { background: #fff3e0; color: #e67e22; }
         .status-confirmed { background: #e3f2fd; color: #1976d2; }
         .status-shipping { background: #e8f5e9; color: #388e3c; }
-        .status-completed { background: #e8f5e9; color: #2e7d32; }
+        .status-completed { background: #dcfce7; color: #16a34a; }
         .status-cancelled { background: #fce4ec; color: #c62828; }
-        
+
         .empty-state {
             text-align: center;
             padding: 60px 20px;
@@ -255,17 +326,8 @@ $conn->close();
             margin-bottom: 16px;
             color: #ddd;
         }
-        
-        @media (max-width: 768px) {
-            .sidebar { transform: translateX(-100%); }
-            .sidebar.open { transform: translateX(0); }
-            .main-content { margin-left: 0; padding: 16px; }
-            .table-toolbar { flex-direction: column; }
-            .table-toolbar .filter-group { flex-direction: column; }
-            .table-toolbar .filter-group input { min-width: auto; }
-            table { font-size: 12px; }
-            table thead th, table tbody td { padding: 8px 6px; }
-        }
+
+        /* ===== RESPONSIVE ===== */
         .menu-toggle {
             display: none;
             background: none;
@@ -274,17 +336,64 @@ $conn->close();
             cursor: pointer;
             padding: 4px;
         }
+
         @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            .sidebar.open { transform: translateX(0); }
+            .main-content { margin-left: 0; padding: 16px; }
+            .table-toolbar { flex-direction: column; }
+            .table-toolbar .filter-group { flex-direction: column; }
+            .table-toolbar .filter-group input { min-width: auto; }
+            table { font-size: 12px; }
+            table thead th, table tbody td { padding: 8px 6px; }
             .menu-toggle { display: block; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Sidebar -->
-    <?php include 'sidebar.php'; ?>
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <a href="home.php" class="brand-link">
+                <img src="../images/logo.avif" alt="CottonUSA" class="brand-logo">
+            </a>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="home.php">
+                <i class="fas fa-store"></i> Trang chính
+            </a>
+            <div class="nav-label">Tổng quan</div>
+            <a href="dashboard.php">
+                <i class="fas fa-chart-pie"></i> Thống kê
+            </a>
+            <a href="products.php">
+                <i class="fas fa-tshirt"></i> Sản phẩm
+            </a>
+            <a href="orders.php" class="active">
+                <i class="fas fa-shopping-cart"></i> Đơn hàng
+            </a>
+            <div class="nav-label">Nội dung</div>
+            <a href="statistics.php">
+                <i class="fas fa-chart-line"></i> Thống kê doanh thu
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="avatar"><?php echo strtoupper(substr($fullname, 0, 1)); ?></div>
+                <div>
+                    <div class="name"><?php echo htmlspecialchars($fullname); ?></div>
+                    <div class="role">Administrator</div>
+                </div>
+            </div>
+            <a href="logout.php"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a>
+        </div>
+    </aside>
 
-    <!-- Main -->
+    <!-- ===== MAIN CONTENT ===== -->
     <main class="main-content">
         <div class="page-header">
             <div style="display:flex;align-items:center;gap:12px;">
@@ -366,7 +475,7 @@ $conn->close();
     </main>
 
     <script>
-        // Toggle sidebar
+        // Toggle sidebar mobile
         document.getElementById('menuToggle')?.addEventListener('click', function() {
             document.getElementById('sidebar').classList.toggle('open');
         });

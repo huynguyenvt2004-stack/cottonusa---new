@@ -10,6 +10,7 @@ if (!isset($_SESSION['admin_id']) || !isset($_SESSION['admin_username'])) {
 }
 
 $fullname = $_SESSION['admin_fullname'] ?? 'Admin';
+$current_page = basename($_SERVER['PHP_SELF']);
 
 // Kết nối database
 $host = 'localhost';
@@ -32,7 +33,7 @@ $countResult = $conn->query("SELECT COUNT(*) as total FROM products");
 $totalCount = $countResult->fetch_assoc()['total'];
 $totalPages = ceil($totalCount / $limit);
 
-// Lấy danh sách sản phẩm có phân trang - SỬA TỪ product_stock
+// Lấy danh sách sản phẩm có phân trang
 $products = [];
 $result = $conn->query("
     SELECT 
@@ -60,26 +61,23 @@ if ($result) {
 
 $conn->close();
 
-// ===== TÍNH THỐNG KÊ TỪ product_stock =====
+// ===== TÍNH THỐNG KÊ =====
 $conn = new mysqli($host, $user, $pass, $db);
 $total_products = $totalCount;
 $total_stock = 0;
 $total_sold = 0;
 $low_stock = 0;
 
-// Lấy tổng tồn kho từ product_stock
 $stockResult = $conn->query("SELECT COALESCE(SUM(stock), 0) as total_stock FROM product_stock");
 if ($stockResult) {
     $total_stock = (int)$stockResult->fetch_assoc()['total_stock'];
 }
 
-// Lấy tổng đã bán từ order_items
 $soldResult = $conn->query("SELECT COALESCE(SUM(quantity), 0) as total_sold FROM order_items");
 if ($soldResult) {
     $total_sold = (int)$soldResult->fetch_assoc()['total_sold'];
 }
 
-// Đếm sản phẩm sắp hết (tồn kho <= 5 và > 0)
 $lowStockResult = $conn->query("
     SELECT COUNT(DISTINCT product_id) as low_stock 
     FROM product_stock 
@@ -98,15 +96,21 @@ $conn->close();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản lý kho - CottonUSA</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* ===== GIỮ NGUYÊN CSS CỦA BẠN ===== */
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
-        body { background: #f0f2f5; display: flex; min-height: 100vh; }
-        
+        /* ===== RESET & BASE ===== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: #f0f2f5;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ===== SIDEBAR MÀU TRẮNG ===== */
         .sidebar {
             width: 250px;
-            background: #1a1a2e;
-            color: #fff;
+            background: #ffffff;
             display: flex;
             flex-direction: column;
             position: fixed;
@@ -115,50 +119,92 @@ $conn->close();
             height: 100vh;
             overflow-y: auto;
             z-index: 100;
+            box-shadow: 2px 0 12px rgba(0,0,0,0.08);
         }
+
         .sidebar-brand {
+            padding: 24px 0 20px 0;
+            border-bottom: 1px solid #f0f0f0;
             text-align: center;
-            padding: 20px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.06);
         }
-        .sidebar-brand a { display: block; text-decoration: none; }
-        .sidebar-brand img { height: 50px; width: auto; display: block; margin: 0 auto; }
-        .sidebar-nav { flex: 1; padding: 16px 0; }
-        .sidebar-nav .nav-label {
+
+        .brand-link {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+        }
+
+        .brand-logo {
+            height: 70px;
+            width: auto;
+            display: block;
+            object-fit: contain;
+            transition: transform 0.3s ease;
+        }
+
+        .brand-logo:hover {
+            transform: scale(1.05);
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 16px 0;
+        }
+
+        .nav-label {
             font-size: 11px;
             text-transform: uppercase;
-            color: rgba(255,255,255,0.25);
-            padding: 8px 24px;
+            color: #aaa;
+            padding: 12px 24px 8px 24px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
         }
+
         .sidebar-nav a {
             display: flex;
             align-items: center;
             gap: 14px;
-            padding: 12px 24px;
-            color: rgba(255,255,255,0.6);
+            padding: 11px 24px;
+            color: #666;
             text-decoration: none;
             font-size: 14px;
             transition: all 0.2s;
             border-left: 3px solid transparent;
         }
-        .sidebar-nav a:hover { background: rgba(255,255,255,0.05); color: #fff; }
-        .sidebar-nav a.active {
-            background: rgba(227,6,19,0.15);
-            color: #fff;
-            border-left-color: #e30613;
+
+        .sidebar-nav a:hover {
+            background: #f5f5f5;
+            color: #1a1a2e;
         }
-        .sidebar-nav a i { width: 20px; text-align: center; }
+
+        .sidebar-nav a.active {
+            background: rgba(227,6,19,0.08);
+            color: #e30613;
+            border-left-color: #e30613;
+            font-weight: 600;
+        }
+
+        .sidebar-nav a i {
+            width: 20px;
+            text-align: center;
+            font-size: 15px;
+        }
+
         .sidebar-footer {
             padding: 16px 24px;
-            border-top: 1px solid rgba(255,255,255,0.08);
+            border-top: 1px solid #f0f0f0;
+            margin-top: auto;
         }
-        .sidebar-footer .user-info {
+
+        .user-info {
             display: flex;
             align-items: center;
             gap: 12px;
             margin-bottom: 10px;
         }
-        .sidebar-footer .user-info .avatar {
+
+        .avatar {
             width: 36px;
             height: 36px;
             border-radius: 50%;
@@ -167,25 +213,44 @@ $conn->close();
             align-items: center;
             justify-content: center;
             font-weight: 700;
+            font-size: 14px;
+            color: #ffffff;
+            flex-shrink: 0;
         }
-        .sidebar-footer .user-info .name { font-size: 14px; font-weight: 600; }
-        .sidebar-footer .user-info .role { font-size: 12px; color: rgba(255,255,255,0.4); }
+
+        .name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1a1a2e;
+        }
+
+        .role {
+            font-size: 12px;
+            color: #888;
+        }
+
         .sidebar-footer a {
-            color: rgba(255,255,255,0.5);
+            color: #888;
             text-decoration: none;
             font-size: 13px;
             display: flex;
             align-items: center;
             gap: 8px;
+            transition: color 0.2s;
         }
-        .sidebar-footer a:hover { color: #e30613; }
-        
+
+        .sidebar-footer a:hover {
+            color: #e30613;
+        }
+
+        /* ===== MAIN CONTENT ===== */
         .main-content {
             margin-left: 250px;
             flex: 1;
             padding: 24px 32px;
             min-height: 100vh;
         }
+
         .page-header {
             display: flex;
             justify-content: space-between;
@@ -194,10 +259,14 @@ $conn->close();
             flex-wrap: wrap;
             gap: 12px;
         }
-        .page-header h1 { font-size: 24px; color: #1a1a2e; }
+
+        .page-header h1 {
+            font-size: 24px;
+            color: #1a1a2e;
+        }
         .page-header h1 span { color: #e30613; }
         .page-header .date { font-size: 13px; color: #888; }
-        
+
         .btn {
             padding: 10px 20px;
             border: none;
@@ -219,13 +288,15 @@ $conn->close();
         .btn-danger:hover { background: #dc2626; }
         .btn-sm { padding: 6px 14px; font-size: 12px; border-radius: 8px; }
         .btn-xs { padding: 4px 10px; font-size: 11px; border-radius: 6px; }
-        
+
+        /* ===== STATS ===== */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 18px;
             margin-bottom: 30px;
         }
+
         .stat-card {
             background: #fff;
             border-radius: 14px;
@@ -235,6 +306,7 @@ $conn->close();
             gap: 16px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
+
         .stat-icon {
             width: 52px;
             height: 52px;
@@ -246,9 +318,14 @@ $conn->close();
             color: #fff;
             flex-shrink: 0;
         }
-        .stat-info h3 { font-size: 24px; color: #1a1a2e; }
+
+        .stat-info h3 {
+            font-size: 24px;
+            color: #1a1a2e;
+        }
         .stat-info p { font-size: 13px; color: #999; }
-        
+
+        /* ===== TOOLBAR ===== */
         .toolbar {
             background: #fff;
             border-radius: 14px;
@@ -263,6 +340,7 @@ $conn->close();
         }
         .toolbar .left { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
         .toolbar .right { display: flex; gap: 10px; align-items: center; }
+
         .search-box {
             display: flex;
             align-items: center;
@@ -280,6 +358,7 @@ $conn->close();
             outline: none;
             width: 240px;
         }
+
         .filter-select {
             padding: 10px 14px;
             border: 2px solid #e8e8e8;
@@ -290,7 +369,8 @@ $conn->close();
             cursor: pointer;
         }
         .filter-select:focus { border-color: #e30613; }
-        
+
+        /* ===== TABLE ===== */
         .table-wrapper {
             background: #fff;
             border-radius: 14px;
@@ -315,7 +395,7 @@ $conn->close();
             vertical-align: middle;
         }
         .table-wrapper tbody tr:hover { background: #fafafa; }
-        
+
         .tag-group { display: flex; flex-wrap: wrap; gap: 4px; }
         .tag {
             display: inline-block;
@@ -339,7 +419,7 @@ $conn->close();
             vertical-align: middle;
         }
         .tag-more { background: transparent; color: #888; border: 1px dashed #ccc; }
-        
+
         .status-badge {
             padding: 4px 14px;
             border-radius: 20px;
@@ -350,7 +430,8 @@ $conn->close();
         .status-in-stock { background: #dcfce7; color: #16a34a; }
         .status-low-stock { background: #fef3c7; color: #d97706; }
         .status-out-of-stock { background: #fee2e2; color: #dc2626; }
-        
+
+        /* ===== LOADING & TOAST ===== */
         .loading-overlay {
             display: none;
             position: fixed;
@@ -361,6 +442,7 @@ $conn->close();
             align-items: center;
         }
         .loading-overlay.active { display: flex; }
+
         .spinner {
             width: 50px;
             height: 50px;
@@ -370,7 +452,7 @@ $conn->close();
             animation: spin 0.8s linear infinite;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
-        
+
         .toast-notification {
             position: fixed;
             bottom: 30px;
@@ -390,17 +472,8 @@ $conn->close();
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        
-        @media (max-width: 768px) {
-            .sidebar { transform: translateX(-100%); }
-            .sidebar.open { transform: translateX(0); }
-            .main-content { margin-left: 0; padding: 16px; }
-            .stats-grid { grid-template-columns: 1fr 1fr; }
-            .search-box input { width: 150px; }
-        }
-        @media (max-width: 480px) {
-            .stats-grid { grid-template-columns: 1fr; }
-        }
+
+        /* ===== RESPONSIVE ===== */
         .menu-toggle {
             display: none;
             background: none;
@@ -409,8 +482,20 @@ $conn->close();
             cursor: pointer;
             padding: 4px;
         }
+
         @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            .sidebar.open { transform: translateX(0); }
+            .main-content { margin-left: 0; padding: 16px; }
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+            .search-box input { width: 150px; }
             .menu-toggle { display: block; }
+        }
+        @media (max-width: 480px) {
+            .stats-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -421,15 +506,16 @@ $conn->close();
         <div class="spinner"></div>
     </div>
 
-    <!-- Sidebar -->
+    <!-- ===== SIDEBAR ===== -->
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-brand">
-            <a href="home.php" style="display:block; text-decoration:none;">
-                <img src="../images/logo.avif" alt="CottonUSA">
+            <a href="home.php" class="brand-link">
+                <img src="../images/logo.avif" alt="CottonUSA" class="brand-logo">
+                <!-- ĐÃ XÓA: <span class="brand-name">COTTON USA</span> -->
             </a>
         </div>
         <nav class="sidebar-nav">
-            <a href="home.php" style="display:flex; align-items:center; gap:14px; padding:12px 24px; color:rgba(255,255,255,0.7); text-decoration:none; font-size:14px; transition:all 0.2s; border-left:3px solid transparent; background:rgba(255,255,255,0.05); margin-bottom:4px;">
+            <a href="home.php">
                 <i class="fas fa-store"></i> Trang chính
             </a>
             <div class="nav-label">Tổng quan</div>
@@ -459,7 +545,7 @@ $conn->close();
         </div>
     </aside>
 
-    <!-- Main -->
+    <!-- ===== MAIN CONTENT ===== -->
     <main class="main-content">
         <div class="page-header">
             <div style="display:flex;align-items:center;gap:12px;">
@@ -618,6 +704,7 @@ $conn->close();
             </table>
         </div>
 
+        <!-- Pagination -->
         <div style="display:flex;justify-content:space-between;align-items:center;margin-top:20px;flex-wrap:wrap;gap:10px;">
             <span style="font-size:13px;color:#888;" id="productCount">Hiển thị <?php echo count($products); ?>/<?php echo $totalCount; ?> sản phẩm</span>
             <div style="display:flex;gap:6px;" id="paginationControls">

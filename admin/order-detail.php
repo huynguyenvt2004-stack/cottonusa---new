@@ -10,12 +10,13 @@ if (!isset($_SESSION['admin_id']) || !isset($_SESSION['admin_username'])) {
 }
 
 $fullname = $_SESSION['admin_fullname'] ?? 'Admin';
+$current_page = basename($_SERVER['PHP_SELF']);
 
 // ===== KẾT NỐI DATABASE =====
 $host = 'localhost';
 $user = 'root';
 $pass = '';
-$db = 'cottonusa';  // ← ĐÃ SỬA
+$db = 'cottonusa';
 
 $conn = new mysqli($host, $user, $pass, $db);
 if ($conn->connect_error) {
@@ -109,6 +110,7 @@ $status_colors = [
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        /* ===== RESET & BASE ===== */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Inter', -apple-system, sans-serif;
@@ -116,10 +118,11 @@ $status_colors = [
             display: flex;
             min-height: 100vh;
         }
+
+        /* ===== SIDEBAR MÀU TRẮNG ===== */
         .sidebar {
             width: 250px;
-            background: #1a1a2e;
-            color: #fff;
+            background: #ffffff;
             display: flex;
             flex-direction: column;
             position: fixed;
@@ -128,50 +131,92 @@ $status_colors = [
             height: 100vh;
             overflow-y: auto;
             z-index: 100;
+            box-shadow: 2px 0 12px rgba(0,0,0,0.08);
         }
+
         .sidebar-brand {
+            padding: 24px 0 20px 0;
+            border-bottom: 1px solid #f0f0f0;
             text-align: center;
-            padding: 20px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.06);
         }
-        .sidebar-brand a { display: block; text-decoration: none; }
-        .sidebar-brand img { height: 50px; width: auto; display: block; margin: 0 auto; }
-        .sidebar-nav { flex: 1; padding: 16px 0; }
-        .sidebar-nav .nav-label {
+
+        .brand-link {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+        }
+
+        .brand-logo {
+            height: 70px;
+            width: auto;
+            display: block;
+            object-fit: contain;
+            transition: transform 0.3s ease;
+        }
+
+        .brand-logo:hover {
+            transform: scale(1.05);
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 16px 0;
+        }
+
+        .nav-label {
             font-size: 11px;
             text-transform: uppercase;
-            color: rgba(255,255,255,0.25);
-            padding: 8px 24px;
+            color: #aaa;
+            padding: 12px 24px 8px 24px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
         }
+
         .sidebar-nav a {
             display: flex;
             align-items: center;
             gap: 14px;
-            padding: 12px 24px;
-            color: rgba(255,255,255,0.6);
+            padding: 11px 24px;
+            color: #666;
             text-decoration: none;
             font-size: 14px;
             transition: all 0.2s;
             border-left: 3px solid transparent;
         }
-        .sidebar-nav a:hover { background: rgba(255,255,255,0.05); color: #fff; }
-        .sidebar-nav a.active {
-            background: rgba(227,6,19,0.15);
-            color: #fff;
-            border-left-color: #e30613;
+
+        .sidebar-nav a:hover {
+            background: #f5f5f5;
+            color: #1a1a2e;
         }
-        .sidebar-nav a i { width: 20px; text-align: center; }
+
+        .sidebar-nav a.active {
+            background: rgba(227,6,19,0.08);
+            color: #e30613;
+            border-left-color: #e30613;
+            font-weight: 600;
+        }
+
+        .sidebar-nav a i {
+            width: 20px;
+            text-align: center;
+            font-size: 15px;
+        }
+
         .sidebar-footer {
             padding: 16px 24px;
-            border-top: 1px solid rgba(255,255,255,0.08);
+            border-top: 1px solid #f0f0f0;
+            margin-top: auto;
         }
-        .sidebar-footer .user-info {
+
+        .user-info {
             display: flex;
             align-items: center;
             gap: 12px;
             margin-bottom: 10px;
         }
-        .sidebar-footer .user-info .avatar {
+
+        .avatar {
             width: 36px;
             height: 36px;
             border-radius: 50%;
@@ -180,25 +225,44 @@ $status_colors = [
             align-items: center;
             justify-content: center;
             font-weight: 700;
+            font-size: 14px;
+            color: #ffffff;
+            flex-shrink: 0;
         }
-        .sidebar-footer .user-info .name { font-size: 14px; font-weight: 600; }
-        .sidebar-footer .user-info .role { font-size: 12px; color: rgba(255,255,255,0.4); }
+
+        .name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1a1a2e;
+        }
+
+        .role {
+            font-size: 12px;
+            color: #888;
+        }
+
         .sidebar-footer a {
-            color: rgba(255,255,255,0.5);
+            color: #888;
             text-decoration: none;
             font-size: 13px;
             display: flex;
             align-items: center;
             gap: 8px;
+            transition: color 0.2s;
         }
-        .sidebar-footer a:hover { color: #e30613; }
-        
+
+        .sidebar-footer a:hover {
+            color: #e30613;
+        }
+
+        /* ===== MAIN CONTENT ===== */
         .main-content {
             margin-left: 250px;
             flex: 1;
             padding: 24px 32px;
             min-height: 100vh;
         }
+
         .page-header {
             display: flex;
             justify-content: space-between;
@@ -207,8 +271,13 @@ $status_colors = [
             flex-wrap: wrap;
             gap: 12px;
         }
-        .page-header h1 { font-size: 24px; color: #1a1a2e; }
+
+        .page-header h1 {
+            font-size: 24px;
+            color: #1a1a2e;
+        }
         .page-header h1 span { color: #e30613; }
+
         .btn {
             padding: 10px 20px;
             border: none;
@@ -235,7 +304,7 @@ $status_colors = [
         .btn-info { background: #3b82f6; color: #fff; }
         .btn-info:hover { background: #2563eb; }
         .btn-sm { padding: 6px 14px; font-size: 12px; border-radius: 8px; }
-        
+
         .order-card {
             background: #fff;
             border-radius: 14px;
@@ -243,15 +312,18 @@ $status_colors = [
             box-shadow: 0 2px 8px rgba(0,0,0,0.06);
             margin-bottom: 20px;
         }
+
         .order-card .row {
             display: flex;
             flex-wrap: wrap;
             gap: 20px;
         }
+
         .order-card .col {
             flex: 1;
             min-width: 200px;
         }
+
         .order-card .col .label {
             font-size: 12px;
             color: #888;
@@ -259,20 +331,23 @@ $status_colors = [
             letter-spacing: 0.5px;
             margin-bottom: 4px;
         }
+
         .order-card .col .value {
             font-size: 15px;
             font-weight: 600;
             color: #1a1a2e;
         }
+
         .order-card .col .value.status {
             color: <?php echo $status_colors[$order['status']] ?? '#666'; ?>;
         }
-        
+
         .detail-table {
             width: 100%;
             border-collapse: collapse;
             font-size: 14px;
         }
+
         .detail-table thead th {
             text-align: left;
             padding: 12px 12px;
@@ -282,17 +357,21 @@ $status_colors = [
             font-size: 12px;
             text-transform: uppercase;
         }
+
         .detail-table tbody td {
             padding: 14px 12px;
             border-bottom: 1px solid #f5f5f5;
             vertical-align: middle;
         }
+
         .detail-table tbody tr:hover { background: #fafafa; }
+
         .detail-table .product-cell {
             display: flex;
             align-items: center;
             gap: 12px;
         }
+
         .detail-table .product-cell img {
             width: 50px;
             height: 50px;
@@ -301,28 +380,32 @@ $status_colors = [
             border: 1px solid #e8e8e8;
             background: #fafafa;
         }
+
         .detail-table .product-cell .info .name {
             font-weight: 600;
             color: #1a1a2e;
         }
+
         .detail-table .product-cell .info .meta {
             font-size: 12px;
             color: #888;
             margin-top: 2px;
         }
-        
+
         .summary-box {
             background: #f8f9fa;
             border-radius: 10px;
             padding: 16px 20px;
             margin-top: 16px;
         }
+
         .summary-box .row {
             display: flex;
             justify-content: space-between;
             padding: 6px 0;
             font-size: 14px;
         }
+
         .summary-box .row.total {
             font-weight: 700;
             font-size: 16px;
@@ -331,16 +414,18 @@ $status_colors = [
             margin-top: 6px;
             color: #e30613;
         }
+
         .summary-box .row .label { color: #666; }
         .summary-box .row .value { color: #1a1a2e; }
         .summary-box .row.total .value { color: #e30613; }
-        
+
         .status-actions {
             display: flex;
             gap: 8px;
             margin-top: 12px;
             flex-wrap: wrap;
         }
+
         .status-actions select {
             padding: 8px 14px;
             border: 2px solid #e8e8e8;
@@ -349,8 +434,9 @@ $status_colors = [
             outline: none;
             background: #fff;
         }
+
         .status-actions select:focus { border-color: #e30613; }
-        
+
         .back-link {
             color: #888;
             text-decoration: none;
@@ -360,7 +446,7 @@ $status_colors = [
             font-size: 14px;
         }
         .back-link:hover { color: #e30613; }
-        
+
         .alert {
             padding: 14px 18px;
             border-radius: 10px;
@@ -373,14 +459,8 @@ $status_colors = [
             color: #16a34a;
             border: 1px solid #bbf7d0;
         }
-        
-        @media (max-width: 768px) {
-            .sidebar { transform: translateX(-100%); }
-            .sidebar.open { transform: translateX(0); }
-            .main-content { margin-left: 0; padding: 16px; }
-            .order-card .col { flex: 1 1 100%; }
-            .detail-table { font-size: 12px; }
-        }
+
+        /* ===== RESPONSIVE ===== */
         .menu-toggle {
             display: none;
             background: none;
@@ -389,22 +469,31 @@ $status_colors = [
             cursor: pointer;
             padding: 4px;
         }
+
         @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            .sidebar.open { transform: translateX(0); }
+            .main-content { margin-left: 0; padding: 16px; }
+            .order-card .col { flex: 1 1 100%; }
+            .detail-table { font-size: 12px; }
             .menu-toggle { display: block; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Sidebar -->
+    <!-- ===== SIDEBAR ===== -->
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-brand">
-            <a href="home.php" style="display:block; text-decoration:none;">
-                <img src="../images/logo.avif" alt="CottonUSA">
+            <a href="home.php" class="brand-link">
+                <img src="../images/logo.avif" alt="CottonUSA" class="brand-logo">
             </a>
         </div>
         <nav class="sidebar-nav">
-            <a href="home.php" style="display:flex; align-items:center; gap:14px; padding:12px 24px; color:rgba(255,255,255,0.7); text-decoration:none; font-size:14px; transition:all 0.2s; border-left:3px solid transparent; background:rgba(255,255,255,0.05); margin-bottom:4px;">
+            <a href="home.php">
                 <i class="fas fa-store"></i> Trang chính
             </a>
             <div class="nav-label">Tổng quan</div>
@@ -434,7 +523,7 @@ $status_colors = [
         </div>
     </aside>
 
-    <!-- Main -->
+    <!-- ===== MAIN CONTENT ===== -->
     <main class="main-content">
         <div class="page-header">
             <div style="display:flex;align-items:center;gap:12px;">
@@ -578,6 +667,7 @@ $status_colors = [
     </main>
 
     <script>
+        // Toggle sidebar mobile
         document.getElementById('menuToggle')?.addEventListener('click', function() {
             document.getElementById('sidebar').classList.toggle('open');
         });
