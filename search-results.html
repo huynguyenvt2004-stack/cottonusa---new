@@ -6,6 +6,135 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="stylesheet" href="style.css">
     <title>Kết quả tìm kiếm - Cotton USA</title>
+    <style>
+        .search-results-container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+            min-height: 400px;
+        }
+        .search-header {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e8e8e8;
+        }
+        .search-header h2 {
+            font-size: 24px;
+            color: #1a1a2e;
+        }
+        .search-header .search-keyword {
+            color: #e30613;
+            font-weight: 700;
+        }
+        .search-header .result-count {
+            font-size: 14px;
+            color: #888;
+            margin-top: 5px;
+        }
+        .muahang-list {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+        .product-item {
+            background: #fff;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+            text-decoration: none;
+            color: inherit;
+        }
+        .product-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .product-item .muahang img {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            border-radius: 8px;
+            background: #fafafa;
+        }
+        .product-item .muahang h3 {
+            font-size: 14px;
+            margin: 10px 0 5px;
+            color: #333;
+            min-height: 40px;
+        }
+        .product-item .muahang p {
+            color: #e30613;
+            font-weight: 700;
+            font-size: 16px;
+        }
+        .product-item .muahang .product-category {
+            font-size: 12px;
+            color: #999;
+            display: block;
+            margin-top: 4px;
+        }
+        .product-item .muahang .product-code {
+            font-size: 11px;
+            color: #bbb;
+            display: block;
+            margin-top: 2px;
+        }
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+            grid-column: 1 / -1;
+        }
+        .no-results i {
+            font-size: 60px;
+            display: block;
+            margin-bottom: 15px;
+            color: #ddd;
+        }
+        .no-results h3 {
+            font-size: 20px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .no-results p {
+            font-size: 14px;
+            color: #888;
+        }
+        .loading {
+            text-align: center;
+            padding: 50px;
+            grid-column: 1 / -1;
+        }
+        .loading .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f0f0f0;
+            border-top-color: #e30613;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            display: inline-block;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 15px;
+            color: #e30613;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        @media (max-width: 768px) {
+            .muahang-list { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 480px) {
+            .muahang-list { grid-template-columns: 1fr; }
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -60,7 +189,7 @@
         <div class="other">
             <div class="search-icon">
                 <input type="text" id="searchInput" placeholder="Tìm kiếm sản phẩm...">
-                <i class="fas fa-search"></i>
+                <i class="fas fa-search" onclick="doSearch()"></i>
             </div>
             <div class="cart-wrapper">
                 <button class="cart-icon-btn" id="cartBtn"><i class="fas fa-shopping-bag"></i><span class="cart-badge" id="cartBadge">0</span></button>
@@ -104,15 +233,18 @@
     </header>
     <div class="dropdown-overlay" id="dropdownOverlay"></div>
 
+    <!-- ===== SEARCH RESULTS ===== -->
     <section class="search-results-container">
         <div class="container">
             <div class="search-header">
                 <h2>🔍 Kết quả tìm kiếm</h2>
-                <p>Tìm thấy <span id="resultCount">0</span> sản phẩm cho từ khóa "<span id="searchKeyword" class="search-keyword"></span>"</p>
+                <p class="result-count" id="resultCount">Đang tìm kiếm...</p>
             </div>
-            <div class="results-count" id="resultsCount"></div>
             <div class="muahang-list" id="searchResultsList">
-                <!-- Kết quả sẽ hiển thị ở đây -->
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p style="margin-top:10px;color:#888;">Đang tìm kiếm sản phẩm...</p>
+                </div>
             </div>
         </div>
     </section>
@@ -136,103 +268,138 @@
 
     <script src="js/cart-auth.js"></script>
     <script>
-        // ================= DATABASE SẢN PHẨM TOÀN TRANG =================
-        const ALL_PRODUCTS = [
-            // QUẦN
-            { id: "QOS001", name: "Quần Ống Suông Nỉ Bông Cotton USA Basic", price: "391.000", img: "quan/quanongsuong.webp", link: "muahang.html?id=QOS001", category: "Quần" },
-            { id: "QOJ001", name: "Quần Jogger Nỉ Bông Cotton USA Basic", price: "390.000", img: "quan/quanjoggerxamtieu.webp", link: "muahang.html?id=QOJ001", category: "Quần" },
-            
-            // SWEATER
-            { id: "HUST001", name: "HUST University Sweater", price: "399.000", img: "sweater/HUSTsweaterden.webp", link: "muahang.html?id=HUST001", category: "Sweater" },
-            { id: "NEU001", name: "NEU University Sweater", price: "399.000", img: "sweater/NEUsweaterden.webp", link: "muahang.html?id=NEU001", category: "Sweater" },
-            { id: "RMIT001", name: "RMIT University Sweater", price: "399.000", img: "sweater/RMITsweaterden.webp", link: "muahang.html?id=RMIT001", category: "Sweater" },
-            { id: "PORSCHE001", name: "Porsche 911 GT3RS Sweater", price: "399.000", img: "sweater/Porschesweaterden.webp", link: "muahang.html?id=PORSCHE001", category: "Sweater" },
-            { id: "BMW001", name: "BMW M3 Competition Sweater", price: "399.000", img: "sweater/BMWsweaterden.webp", link: "muahang.html?id=BMW001", category: "Sweater" },
-            { id: "MERCEDES001", name: "Mercedes Sweater", price: "399.000", img: "sweater/Mercedessweaterden.webp", link: "muahang.html?id=MERCEDES001", category: "Sweater" },
-            { id: "FLORAL001", name: "Floral Cotton USA Sweater", price: "399.000", img: "sweater/FloralCottonUsaSweaterden.webp", link: "muahang.html?id=FLORAL001", category: "Sweater" },
-            { id: "HOACUC001", name: "Hoa Cúc Daisy Sweater", price: "399.000", img: "sweater/hoacucsweaterden.webp", link: "muahang.html?id=HOACUC001", category: "Sweater" },
-            
-            // HOODIES
-            { id: "BS001", name: "Basic Hoodie", price: "399.000", img: "hoodies/HoodieCottonUSABasicden.webp", link: "muahang.html?id=BS001", category: "Hoodies" },
-            { id: "PNS001", name: "Porsche Night Speed Hoodie", price: "399.000", img: "hoodies/Porsch NIght Speed Hoodieden.webp", link: "muahang.html?id=PNS001", category: "Hoodies" },
-            { id: "PST001", name: "Porsche Silver Turbo S Hoodie", price: "399.000", img: "hoodies/Porsche Silver Turbo S Hoodieden.webp", link: "muahang.html?id=PST001", category: "Hoodies" },
-            { id: "Pos911", name: "Porsche 911 Hoodie", price: "399.000", img: "hoodies/Posche911Hoodieden.webp", link: "muahang.html?id=Pos911", category: "Hoodies" },
-            { id: "USA001", name: "USA City Of Dream Hoodie", price: "399.000", img: "hoodies/USA City Of Dream Hoodieden.webp", link: "muahang.html?id=USA001", category: "Hoodies" },
-            { id: "Texas001", name: "USA Texas 1945 Hoodie", price: "399.000", img: "hoodies/USA Texas 1945 Hoodiehong.webp", link: "muahang.html?id=Texas001", category: "Hoodies" },
-            { id: "VUS001", name: "USA Vintage United State Hoodie", price: "399.000", img: "hoodies/USA Vintage United State Hoodieden.webp", link: "muahang.html?id=VUS001", category: "Hoodies" },
-            
-            // ÁO THUN NGẮN TAY
-            { id: "WDX300", name: "Watch Doxa X300", price: "189.000", img: "aothun/Watch Doxa X300 den.webp", link: "muahang.html?id=WDX300", category: "Áo Thun" },
-            { id: "WOT001", name: "Watch One Time", price: "189.000", img: "aothun/Watch One Time den.webp", link: "muahang.html?id=WOT001", category: "Áo Thun" },
-            { id: "WTC001", name: "Watch That Completes", price: "189.000", img: "aothun/Watch That Completes den.webp", link: "muahang.html?id=WTC001", category: "Áo Thun" },
-            { id: "PP911T", name: "Pink Porsche 911 Turbo", price: "189.000", img: "aothun/Pink Porsche 911 Turbo den.webp", link: "muahang.html?id=PP911T", category: "Áo Thun" },
-            { id: "PVS001", name: "Porsche Vintage Style", price: "189.000", img: "aothun/Porsche Vintage Style den.webp", link: "muahang.html?id=PVS001", category: "Áo Thun" },
-            { id: "PVB001", name: "Porsche Violet Berry", price: "189.000", img: "aothun/Porsche Violet Berry den.webp", link: "muahang.html?id=PVB001", category: "Áo Thun" },
-            { id: "UCE001", name: "USA California Extraordinary", price: "189.000", img: "aothun/USA California Extraordinary den.webp", link: "muahang.html?id=UCE001", category: "Áo Thun" },
-            { id: "ULA001", name: "USA Los Angeles", price: "189.000", img: "aothun/USA Los Ageles den.webp", link: "muahang.html?id=ULA001", category: "Áo Thun" },
-            { id: "UMTE001", name: "USA More Than Enough", price: "189.000", img: "aothun/USA More Than Enough den.webp", link: "muahang.html?id=UMTE001", category: "Áo Thun" },
-            
-            // ÁO THUN DÀI TAY
-            { id: "ER001", name: "Rapper Eminem Recovery", price: "189.000", img: "aothundaitay/Rapper Eminem Recovery den.webp", link: "muahang.html?id=ER001", category: "Áo Thun Dài Tay" },
-            { id: "ICDSN001", name: "Rapper Ice Cube Dont Say Nothing", price: "189.000", img: "aothundaitay/Rapper Ice Cube Dont Say Nothing den.webp", link: "muahang.html?id=ICDSN001", category: "Áo Thun Dài Tay" },
-            { id: "TSFT001", name: "Rapper Travis Scott Fein Typo", price: "189.000", img: "aothundaitay/Rapper Travis Scott Fein Typo den.webp", link: "muahang.html?id=TSFT001", category: "Áo Thun Dài Tay" },
-            { id: "AB911", name: "Porsche All Black 911 GT3RS", price: "189.000", img: "aothundaitay/Porsche All Black 911 GT3RS den.webp", link: "muahang.html?id=AB911", category: "Áo Thun Dài Tay" },
-            { id: "ESR001", name: "Porsche Eat Sleep Repeat", price: "189.000", img: "aothundaitay/Porsche Eat Sleep Repeat den.webp", link: "muahang.html?id=ESR001", category: "Áo Thun Dài Tay" },
-            { id: "TSG001", name: "Porsche Turbo S GTSTREET", price: "189.000", img: "aothundaitay/Porsche Turbo S GTSTREET den.webp", link: "muahang.html?id=TSG001", category: "Áo Thun Dài Tay" },
-            { id: "MTE001", name: "USA More Than Enough (Dài Tay)", price: "189.000", img: "aothundaitay/USA More Than Enough den.webp", link: "muahang.html?id=MTE001", category: "Áo Thun Dài Tay" },
-            { id: "NYC001", name: "USA New York City", price: "189.000", img: "aothundaitay/USA New York City den.webp", link: "muahang.html?id=NYC001", category: "Áo Thun Dài Tay" },
-            { id: "Texas002", name: "USA Texas 1945 (Dài Tay)", price: "189.000", img: "aothundaitay/USA Texas 1945 den.webp", link: "muahang.html?id=Texas002", category: "Áo Thun Dài Tay" }
-        ];
-
-        // Lấy từ khóa từ URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const keyword = urlParams.get('q') || '';
-        
-        // Hiển thị từ khóa
-        document.getElementById('searchKeyword').textContent = keyword;
-        
-        // Tìm kiếm sản phẩm
-        let results = [];
-        if (keyword.trim() !== '') {
-            const lowerKeyword = keyword.toLowerCase();
-            results = ALL_PRODUCTS.filter(product => 
-                product.name.toLowerCase().includes(lowerKeyword) ||
-                product.category.toLowerCase().includes(lowerKeyword)
-            );
+        // ===== LẤY TỪ KHÓA TỪ URL =====
+        function getQueryParam(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name) || '';
         }
-        
-        // Cập nhật số lượng kết quả
-        document.getElementById('resultCount').textContent = results.length;
-        
-        // Hiển thị kết quả
-        const resultsList = document.getElementById('searchResultsList');
-        
-        if (results.length === 0) {
-            resultsList.innerHTML = `
-                <div class="no-results">
-                    <i class="fas fa-search"></i>
-                    <h3>Không tìm thấy sản phẩm</h3>
-                    <p>Rất tiếc, không có sản phẩm nào phù hợp với từ khóa "${keyword}"</p>
-                    <p style="margin-top: 20px;">Vui lòng thử lại với từ khóa khác!</p>
-                </div>
-            `;
-        } else {
+
+        // ===== ĐỊNH DẠNG TIỀN =====
+        function formatPrice(price) {
+            return new Intl.NumberFormat('vi-VN').format(price);
+        }
+
+        // ===== TÌM KIẾM SẢN PHẨM TỪ DATABASE =====
+        function searchProducts(keyword) {
+            const resultsList = document.getElementById('searchResultsList');
+            const resultCount = document.getElementById('resultCount');
+            
+            if (!keyword) {
+                resultsList.innerHTML = `
+                    <div class="no-results">
+                        <i class="fas fa-search"></i>
+                        <h3>Nhập từ khóa tìm kiếm</h3>
+                        <p>Vui lòng nhập từ khóa để tìm kiếm sản phẩm</p>
+                        <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Quay lại trang chủ</a>
+                    </div>
+                `;
+                resultCount.textContent = 'Vui lòng nhập từ khóa tìm kiếm';
+                return;
+            }
+
+            resultCount.textContent = 'Đang tìm kiếm...';
+
+            // Gọi API tìm kiếm
+            fetch('api/search-products.php?q=' + encodeURIComponent(keyword))
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('HTTP error ' + response.status);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        const keywordDisplay = data.keyword || keyword;
+                        resultCount.innerHTML = `Tìm thấy <strong>${data.total}</strong> sản phẩm cho từ khóa "<span class="search-keyword">${keywordDisplay}</span>"`;
+                        renderResults(data.products, keywordDisplay);
+                    } else {
+                        resultCount.textContent = 'Lỗi khi tìm kiếm';
+                        resultsList.innerHTML = `
+                            <div class="no-results">
+                                <i class="fas fa-exclamation-triangle" style="color:#e30613;"></i>
+                                <h3>Lỗi tìm kiếm</h3>
+                                <p>${data.message || 'Đã xảy ra lỗi, vui lòng thử lại!'}</p>
+                            </div>
+                        `;
+                    }
+                })
+                .catch(error => {
+                    console.error('Lỗi:', error);
+                    resultCount.textContent = 'Lỗi kết nối';
+                    resultsList.innerHTML = `
+                        <div class="no-results">
+                            <i class="fas fa-exclamation-triangle" style="color:#e30613;"></i>
+                            <h3>Lỗi kết nối</h3>
+                            <p>Không thể kết nối đến máy chủ. Vui lòng thử lại!</p>
+                            <p style="font-size:13px;color:#bbb;margin-top:5px;">Đảm bảo đã bật Apache và MySQL</p>
+                            <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Quay lại trang chủ</a>
+                        </div>
+                    `;
+                });
+        }
+
+        // ===== HIỂN THỊ KẾT QUẢ =====
+        function renderResults(products, keyword) {
+            const resultsList = document.getElementById('searchResultsList');
+            
+            if (!products || products.length === 0) {
+                resultsList.innerHTML = `
+                    <div class="no-results">
+                        <i class="fas fa-search"></i>
+                        <h3>Không tìm thấy sản phẩm</h3>
+                        <p>Rất tiếc, không có sản phẩm nào phù hợp với từ khóa "<strong>${keyword}</strong>"</p>
+                        <p style="margin-top: 10px; font-size:13px; color:#bbb;">Vui lòng thử lại với từ khóa khác!</p>
+                        <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Quay lại trang chủ</a>
+                    </div>
+                `;
+                return;
+            }
+
             let html = '';
-            results.forEach(product => {
+            products.forEach(product => {
+                let imageSrc = 'uploads/' + product.main_image;
+                if (!product.main_image) {
+                    imageSrc = 'images/no-image.png';
+                }
+                
                 html += `
-                    <a href="${product.link}" class="product-item">
+                    <a href="muahang.html?id=${product.id}" class="product-item">
                         <div class="muahang">
-                            <img src="${product.img}" alt="${product.name}">
+                            <img src="${imageSrc}" alt="${product.name}" onerror="this.src='images/no-image.png'">
                             <h3>${product.name}</h3>
-                            <p>${product.price}đ</p>
-                            <span style="font-size: 12px; color: #888;">${product.category}</span>
+                            <p>${formatPrice(product.price)}đ</p>
+                            <span class="product-category">${product.category || 'Sản phẩm'}</span>
+                            <span class="product-code">Mã: ${product.id}</span>
                         </div>
                     </a>
                 `;
             });
             resultsList.innerHTML = html;
         }
-        
+
+        // ===== TÌM KIẾM TRÊN HEADER =====
+        function doSearch() {
+            const input = document.getElementById('searchInput');
+            const keyword = input.value.trim();
+            if (keyword !== '') {
+                window.location.href = 'search-results.html?q=' + encodeURIComponent(keyword);
+            }
+        }
+
+        // ===== KHỞI TẠO KHI TRANG SẴN SÀNG =====
+        document.addEventListener('DOMContentLoaded', function() {
+            const keyword = getQueryParam('q');
+            document.getElementById('searchInput').value = keyword;
+            searchProducts(keyword);
+        });
+
+        // ===== ENTER ĐỂ TÌM KIẾM =====
+        document.getElementById('searchInput')?.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                doSearch();
+            }
+        });
+
         // ================= HEADER DROPDOWN =================
         (function initHeaderDropdowns() {
             const cartBtn = document.getElementById('cartBtn');
@@ -275,19 +442,6 @@
             overlay.addEventListener('click', function () { closeAll(); });
             document.addEventListener('click', function () { closeAll(); });
         })();
-
-        // ================= TÌM KIẾM TRÊN HEADER (CHUYỂN HƯỚNG) =================
-        const searchInput = document.getElementById('searchInput');
-        if (searchInput) {
-            searchInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    const searchKeyword = this.value.trim();
-                    if (searchKeyword !== '') {
-                        window.location.href = 'search-results.html?q=' + encodeURIComponent(searchKeyword);
-                    }
-                }
-            });
-        }
     </script>
 </body>
 </html>

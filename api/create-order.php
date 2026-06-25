@@ -104,7 +104,7 @@ try {
     $order_id = $stmt->insert_id;
     $stmt->close();
 
-    // Thêm chi tiết đơn hàng
+    // ===== THÊM CHI TIẾT ĐƠN HÀNG VÀ TRỪ TỒN KHO =====
     foreach ($items as $item) {
         $product_code = isset($item['code']) ? $item['code'] : '';
         $product_name = isset($item['name']) ? $item['name'] : '';
@@ -113,6 +113,7 @@ try {
         $size = isset($item['size']) ? $item['size'] : '';
         $color = isset($item['color']) ? $item['color'] : '';
 
+        // Lưu order_items
         $stmt2 = $conn->prepare("INSERT INTO order_items (order_id, product_code, product_name, quantity, price, size, color) VALUES (?, ?, ?, ?, ?, ?, ?)");
         $stmt2->bind_param("issidss", $order_id, $product_code, $product_name, $quantity, $price, $size, $color);
         
@@ -120,6 +121,58 @@ try {
             throw new Exception('Lỗi khi thêm chi tiết đơn hàng: ' . $stmt2->error);
         }
         $stmt2->close();
+
+        // ===== QUAN TRỌNG: TRỪ TỒN KHO =====
+        // Kiểm tra xem sản phẩm có tồn tại trong product_stock không
+        $checkStock = $conn->prepare("SELECT stock FROM product_stock WHERE product_id = ? AND size_name = ? AND color_name = ?");
+        $checkStock->bind_param("sss", $product_code, $size, $color);
+        $checkStock->execute();
+        $result = $checkStock->get_result();
+        
+        if ($result->num_rows > 0) {
+            // Có tồn tại -> trừ stock
+            $row = $result->fetch_assoc();
+            $current_stock = $row['stock'];
+            
+            if ($current_stock < $quantity) {
+                throw new Exception("Sản phẩm $product_name (Size: $size, Màu: $color) chỉ còn $current_stock sản phẩm!");
+            }
+            
+            $updateStock = $conn->prepare("UPDATE product_stock SET stock = stock - ? WHERE product_id = ? AND size_name = ? AND color_name = ?");
+            $updateStock->bind_param("isss", $quantity, $product_code, $size, $color);
+            
+            if (!$updateStock->execute()) {
+                throw new Exception('Lỗi khi cập nhật tồn kho: ' . $updateStock->error);
+            }
+            $updateStock->close();
+        } else {
+            // Không có trong product_stock -> thử tìm theo product_id và size (không có màu)
+            $checkStock2 = $conn->prepare("SELECT stock FROM product_stock WHERE product_id = ? AND size_name = ?");
+            $checkStock2->bind_param("ss", $product_code, $size);
+            $checkStock2->execute();
+            $result2 = $checkStock2->get_result();
+            
+            if ($result2->num_rows > 0) {
+                $row2 = $result2->fetch_assoc();
+                $current_stock = $row2['stock'];
+                
+                if ($current_stock < $quantity) {
+                    throw new Exception("Sản phẩm $product_name (Size: $size) chỉ còn $current_stock sản phẩm!");
+                }
+                
+                $updateStock2 = $conn->prepare("UPDATE product_stock SET stock = stock - ? WHERE product_id = ? AND size_name = ?");
+                $updateStock2->bind_param("iss", $quantity, $product_code, $size);
+                
+                if (!$updateStock2->execute()) {
+                    throw new Exception('Lỗi khi cập nhật tồn kho: ' . $updateStock2->error);
+                }
+                $updateStock2->close();
+            } else {
+                // Không tìm thấy sản phẩm trong stock -> bỏ qua (không trừ)
+                error_log("Không tìm thấy stock cho product_id: $product_code, size: $size, color: $color");
+            }
+        }
+        $checkStock->close();
     }
 
     $conn->commit();

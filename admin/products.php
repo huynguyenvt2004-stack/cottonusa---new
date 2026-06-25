@@ -155,9 +155,7 @@ foreach ($products as $p) {
             transition: transform 0.3s ease;
         }
 
-        .brand-logo:hover {
-            transform: scale(1.05);
-        }
+        .brand-logo:hover { transform: scale(1.05); }
 
         .sidebar-nav {
             flex: 1;
@@ -251,9 +249,7 @@ foreach ($products as $p) {
             transition: color 0.2s;
         }
 
-        .sidebar-footer a:hover {
-            color: #e30613;
-        }
+        .sidebar-footer a:hover { color: #e30613; }
 
         /* ===== MAIN CONTENT ===== */
         .main-content {
@@ -528,6 +524,11 @@ foreach ($products as $p) {
             padding: 4px;
         }
 
+        @media (max-width: 1024px) {
+            .form-grid { grid-template-columns: 1fr; }
+            .full-width { grid-column: 1; }
+        }
+
         @media (max-width: 768px) {
             .sidebar {
                 transform: translateX(-100%);
@@ -636,10 +637,24 @@ foreach ($products as $p) {
                     foreach ($product['variants'] as $v) {
                         $total_stock += (int)$v['stock'];
                     }
+                    
+                    // Xử lý đường dẫn ảnh
+                    $image_path = '';
+                    if (!empty($product['main_image'])) {
+                        if (file_exists('../uploads/' . $product['main_image'])) {
+                            $image_path = '../uploads/' . $product['main_image'];
+                        } elseif (file_exists('../' . $product['main_image'])) {
+                            $image_path = '../' . $product['main_image'];
+                        }
+                    }
                     ?>
                     <div class="product-card" data-id="<?php echo $product['id']; ?>" data-name="<?php echo strtolower($product['name']); ?>">
                         <div class="product-header" onclick="toggleProduct(this)">
-                            <img src="<?php echo '../' . ($product['main_image'] ?? 'images/no-image.png'); ?>" alt="<?php echo htmlspecialchars($product['name']); ?>" onerror="this.src='images/no-image.png'">
+                            <?php if ($image_path): ?>
+                                <img src="<?php echo $image_path; ?>" alt="<?php echo htmlspecialchars($product['name']); ?>" onerror="this.src='../images/no-image.png'">
+                            <?php else: ?>
+                                <img src="../images/no-image.png" alt="No image">
+                            <?php endif; ?>
                             <div class="info">
                                 <div class="name"><?php echo htmlspecialchars($product['name']); ?></div>
                                 <div class="meta">

@@ -511,7 +511,6 @@ $conn->close();
         <div class="sidebar-brand">
             <a href="home.php" class="brand-link">
                 <img src="../images/logo.avif" alt="CottonUSA" class="brand-logo">
-                <!-- ĐÃ XÓA: <span class="brand-name">COTTON USA</span> -->
             </a>
         </div>
         <nav class="sidebar-nav">
@@ -734,6 +733,8 @@ $conn->close();
         // ===== BIẾN PHÂN TRANG =====
         let currentPage = <?php echo $page; ?>;
         let totalPages = <?php echo $totalPages; ?>;
+        let searchTimeout = null;
+        let isSearching = false;
 
         // ===== NÚT LÀM MỚI =====
         document.getElementById('btnRefresh')?.addEventListener('click', function() {
@@ -742,6 +743,7 @@ $conn->close();
             
             document.getElementById('searchInput').value = '';
             document.getElementById('statusFilter').value = 'all';
+            isSearching = false;
             
             icon.classList.add('fa-spin');
             btn.disabled = true;
@@ -749,11 +751,8 @@ $conn->close();
             
             fetch('api/get-products.php')
                 .then(response => {
-                    const contentType = response.headers.get('content-type');
-                    if (!contentType || !contentType.includes('application/json')) {
-                        return response.text().then(text => {
-                            throw new Error('Server trả về HTML thay vì JSON: ' + text.substring(0, 100));
-                        });
+                    if (!response.ok) {
+                        throw new Error('HTTP error ' + response.status);
                     }
                     return response.json();
                 })
@@ -761,7 +760,7 @@ $conn->close();
                     if (data.success) {
                         updateTable(data.products);
                         updateStats(data.stats);
-                        filterTable();
+                        updatePagination(data.total_pages, data.current_page || 1);
                         showToast('✅ Đã làm mới danh sách sản phẩm!');
                     } else {
                         showToast('❌ Lỗi: ' + data.message);
@@ -786,12 +785,11 @@ $conn->close();
                 tbody.innerHTML = `
                     <tr>
                         <td colspan="9" style="text-align:center;padding:40px;color:#999;">
-                            <i class="fas fa-box" style="font-size:40px;display:block;margin-bottom:12px;"></i>
+                            <i class="fas fa-box" style="font-size:40px;display:block;margin-bottom:12px;color:#ddd;"></i>
                             Chưa có sản phẩm nào.
                         </td>
                     </tr>
                 `;
-                document.getElementById('productCount').textContent = 'Hiển thị 0 sản phẩm';
                 return;
             }
             
@@ -816,6 +814,7 @@ $conn->close();
                 
                 let sizeHtml = sizes.slice(0, 4).map(s => `<span class="tag tag-size">${s}</span>`).join('');
                 if (sizes.length > 4) sizeHtml += `<span class="tag tag-more">+${sizes.length - 4}</span>`;
+                if (sizes.length === 0) sizeHtml = '--';
                 
                 let colorHtml = colors.slice(0, 3).map(c => {
                     const hex = colorHex[c] || '#cccccc';
@@ -823,13 +822,14 @@ $conn->close();
                     return `<span class="tag tag-color"><span class="color-dot" style="background:${hex};${border}"></span>${c}</span>`;
                 }).join('');
                 if (colors.length > 3) colorHtml += `<span class="tag tag-more">+${colors.length - 3}</span>`;
+                if (colors.length === 0) colorHtml = '--';
                 
                 html += `
                     <tr>
                         <td><strong>${p.id}</strong></td>
                         <td>${p.name}</td>
-                        <td><div class="tag-group">${sizeHtml || '--'}</div></td>
-                        <td><div class="tag-group">${colorHtml || '--'}</div></td>
+                        <td><div class="tag-group">${sizeHtml}</div></td>
+                        <td><div class="tag-group">${colorHtml}</div></td>
                         <td>${price.toLocaleString()}đ</td>
                         <td>${sold}</td>
                         <td>${stock}</td>
@@ -843,7 +843,6 @@ $conn->close();
             });
             
             tbody.innerHTML = html;
-            document.getElementById('productCount').textContent = `Hiển thị ${products.length} sản phẩm`;
         }
 
         // ===== CẬP NHẬT THỐNG KÊ =====
@@ -859,6 +858,11 @@ $conn->close();
         function updatePagination(totalPages, currentPage) {
             const container = document.getElementById('paginationControls');
             if (!container) return;
+            
+            if (isSearching) {
+                container.innerHTML = '';
+                return;
+            }
             
             let html = '';
             
@@ -884,6 +888,8 @@ $conn->close();
                     const url = new URL(this.href);
                     const page = url.searchParams.get('page');
                     if (page) {
+                        document.getElementById('searchInput').value = '';
+                        isSearching = false;
                         loadPage(parseInt(page));
                     }
                 });
@@ -893,6 +899,7 @@ $conn->close();
         // ===== TẢI TRANG =====
         function loadPage(page) {
             currentPage = page;
+            isSearching = false;
             document.getElementById('loadingOverlay').classList.add('active');
             
             fetch('api/get-products.php?page=' + page)
@@ -906,7 +913,7 @@ $conn->close();
                     if (data.success) {
                         updateTable(data.products);
                         updatePagination(data.total_pages, data.current_page);
-                        showToast('📄 Trang ' + page);
+                        document.getElementById('productCount').textContent = `Hiển thị ${data.products ? data.products.length : 0}/${data.total_products || 0} sản phẩm`;
                     } else {
                         showToast('❌ Lỗi: ' + data.message);
                     }
@@ -920,9 +927,84 @@ $conn->close();
                 });
         }
 
-        // ===== FILTER TABLE =====
+        // ===== TÌM KIẾM TRÊN TOÀN BỘ DATABASE =====
+        document.getElementById('searchInput')?.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            const keyword = this.value.trim();
+            
+            if (keyword === '') {
+                isSearching = false;
+                loadPage(currentPage);
+                return;
+            }
+            
+            searchTimeout = setTimeout(() => {
+                searchAllProducts(keyword);
+            }, 500);
+        });
+
+        function searchAllProducts(keyword) {
+            isSearching = true;
+            document.getElementById('loadingOverlay').classList.add('active');
+            const statusFilter = document.getElementById('statusFilter').value;
+            
+            fetch('api/search-products.php?q=' + encodeURIComponent(keyword))
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('HTTP error ' + response.status);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        let products = data.products || [];
+                        
+                        if (statusFilter !== 'all') {
+                            products = products.filter(p => {
+                                const stock = parseInt(p.total_stock) || 0;
+                                if (statusFilter === 'in-stock') return stock > 5;
+                                if (statusFilter === 'low-stock') return stock > 0 && stock <= 5;
+                                if (statusFilter === 'out-of-stock') return stock <= 0;
+                                return true;
+                            });
+                        }
+                        
+                        updateTable(products);
+                        document.getElementById('paginationControls').innerHTML = '';
+                        
+                        if (products.length > 0) {
+                            document.getElementById('productCount').textContent = `🔍 Tìm thấy ${products.length} sản phẩm cho "${keyword}"`;
+                        } else {
+                            document.getElementById('productCount').textContent = `🔍 Không tìm thấy sản phẩm cho "${keyword}"`;
+                        }
+                    } else {
+                        showToast('❌ Lỗi: ' + (data.message || 'Không xác định'));
+                        isSearching = false;
+                    }
+                })
+                .catch(error => {
+                    console.error('Lỗi:', error);
+                    showToast('❌ Lỗi kết nối: ' + error.message);
+                    isSearching = false;
+                    loadPage(currentPage);
+                })
+                .finally(() => {
+                    document.getElementById('loadingOverlay').classList.remove('active');
+                });
+        }
+
+        // ===== FILTER THEO TRẠNG THÁI =====
+        document.getElementById('statusFilter')?.addEventListener('change', function() {
+            const keyword = document.getElementById('searchInput').value.trim();
+            if (keyword !== '') {
+                searchAllProducts(keyword);
+            } else {
+                filterTable();
+            }
+        });
+
+        // ===== FILTER TABLE (LỌC TRÊN TRANG HIỆN TẠI) =====
         function filterTable() {
-            const keyword = document.getElementById('searchInput').value.toLowerCase().trim();
             const statusFilter = document.getElementById('statusFilter').value;
             const rows = document.querySelectorAll('#productTableBody tr');
             let visibleCount = 0;
@@ -933,22 +1015,12 @@ $conn->close();
                     return;
                 }
                 
-                const cells = row.querySelectorAll('td');
-                const maSP = cells[0] ? cells[0].textContent.toLowerCase() : '';
-                const tenSP = cells[1] ? cells[1].textContent.toLowerCase() : '';
-                
                 const badge = row.querySelector('.status-badge');
                 const badgeText = badge ? badge.textContent.trim() : '';
                 
                 let show = true;
                 
-                if (keyword) {
-                    if (!maSP.includes(keyword) && !tenSP.includes(keyword)) {
-                        show = false;
-                    }
-                }
-                
-                if (show && statusFilter !== 'all') {
+                if (statusFilter !== 'all') {
                     if (statusFilter === 'in-stock' && badgeText !== 'Còn hàng') show = false;
                     if (statusFilter === 'low-stock' && badgeText !== 'Sắp hết') show = false;
                     if (statusFilter === 'out-of-stock' && badgeText !== 'Hết hàng') show = false;
@@ -979,10 +1051,6 @@ $conn->close();
             }, 3000);
         }
 
-        // ===== SỰ KIỆN =====
-        document.getElementById('searchInput')?.addEventListener('input', filterTable);
-        document.getElementById('statusFilter')?.addEventListener('change', filterTable);
-
         // ===== XÓA SẢN PHẨM =====
         document.addEventListener('click', function(e) {
             const deleteBtn = e.target.closest('.btn-delete');
@@ -1000,7 +1068,12 @@ $conn->close();
                     .then(data => {
                         if (data.success) {
                             showToast('✅ Đã xóa sản phẩm "' + name + '"');
-                            loadPage(currentPage);
+                            const keyword = document.getElementById('searchInput').value.trim();
+                            if (keyword !== '') {
+                                searchAllProducts(keyword);
+                            } else {
+                                loadPage(currentPage);
+                            }
                         } else {
                             showToast('❌ ' + data.message);
                         }

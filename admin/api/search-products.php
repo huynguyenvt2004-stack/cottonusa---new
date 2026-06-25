@@ -1,88 +1,87 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-session_start();
+// Tắt hiển thị lỗi để tránh ảnh hưởng JSON
+error_reporting(0);
+ini_set('display_errors', 0);
 
 header('Content-Type: application/json');
+header('Access-Control-Allow-Origin: *');
 
-// Kiểm tra đăng nhập
-if (!isset($_SESSION['admin_id']) || !isset($_SESSION['admin_username'])) {
-    echo json_encode(['success' => false, 'message' => 'Chưa đăng nhập']);
-    exit;
-}
+try {
+    $host = 'localhost';
+    $user = 'root';
+    $pass = '';
+    $db = 'cottonusa';
 
-$keyword = isset($_GET['q']) ? trim($_GET['q']) : '';
+    $conn = new mysqli($host, $user, $pass, $db);
+    if ($conn->connect_error) {
+        throw new Exception('Kết nối database thất bại: ' . $conn->connect_error);
+    }
 
-if (empty($keyword)) {
-    echo json_encode(['success' => false, 'message' => 'Vui lòng nhập từ khóa']);
-    exit;
-}
+    $keyword = isset($_GET['q']) ? trim($_GET['q']) : '';
 
-// Kết nối database
-$host = 'localhost';
-$user = 'root';
-$pass = '';
-$db = 'cottonusa_db';
+    if (empty($keyword)) {
+        echo json_encode(['success' => true, 'total' => 0, 'products' => []]);
+        $conn->close();
+        exit;
+    }
 
-$conn = new mysqli($host, $user, $pass, $db);
-if ($conn->connect_error) {
-    echo json_encode(['success' => false, 'message' => 'Kết nối database thất bại']);
-    exit;
-}
+    // Tìm kiếm sản phẩm
+    $sql = "SELECT 
+                p.id, 
+                p.name, 
+                p.category, 
+                p.price, 
+                p.main_image,
+                GROUP_CONCAT(DISTINCT ps.size_name ORDER BY ps.size_name SEPARATOR ',') as sizes,
+                GROUP_CONCAT(DISTINCT ps.color_name ORDER BY ps.color_name SEPARATOR ',') as colors,
+                COALESCE(SUM(ps.stock), 0) as total_stock,
+                COALESCE((SELECT SUM(oi.quantity) FROM order_items oi WHERE oi.product_code = p.id), 0) as sold
+            FROM products p
+            LEFT JOIN product_stock ps ON p.id = ps.product_id
+            WHERE p.name LIKE ? OR p.id LIKE ?
+            GROUP BY p.id
+            ORDER BY p.created_at DESC";
 
-// Tìm kiếm sản phẩm theo mã hoặc tên
-$keyword = $conn->real_escape_string($keyword);
-$products = [];
+    $stmt = $conn->prepare($sql);
+    if (!$stmt) {
+        throw new Exception('Lỗi prepare SQL: ' . $conn->error);
+    }
+    
+    $searchTerm = '%' . $keyword . '%';
+    $stmt->bind_param("ss", $searchTerm, $searchTerm);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
-$result = $conn->query("
-    SELECT 
-        p.id, 
-        p.name, 
-        p.category, 
-        p.price, 
-        p.main_image,
-        GROUP_CONCAT(DISTINCT ps.size_name ORDER BY ps.size_name SEPARATOR ',') as sizes,
-        GROUP_CONCAT(DISTINCT ps.color_name ORDER BY ps.color_name SEPARATOR ',') as colors,
-        COALESCE(SUM(ps.stock), 0) as total_stock,
-        COALESCE((SELECT SUM(oi.quantity) FROM order_items oi WHERE oi.product_code = p.id), 0) as sold
-    FROM products p
-    LEFT JOIN product_stock ps ON p.id = ps.product_id
-    WHERE p.id LIKE '%$keyword%' OR p.name LIKE '%$keyword%'
-    GROUP BY p.id
-    ORDER BY p.created_at DESC
-");
-
-if ($result) {
+    $products = [];
     while ($row = $result->fetch_assoc()) {
-        $products[] = $row;
+        $products[] = [
+            'id' => $row['id'],
+            'name' => $row['name'],
+            'category' => $row['category'],
+            'price' => (int)$row['price'],
+            'main_image' => $row['main_image'] ?? '',
+            'sizes' => $row['sizes'] ?? '',
+            'colors' => $row['colors'] ?? '',
+            'total_stock' => (int)($row['total_stock'] ?? 0),
+            'sold' => (int)($row['sold'] ?? 0)
+        ];
     }
+
+    $stmt->close();
+    $conn->close();
+
+    echo json_encode([
+        'success' => true,
+        'total' => count($products),
+        'keyword' => $keyword,
+        'products' => $products
+    ], JSON_UNESCAPED_UNICODE);
+
+} catch (Exception $e) {
+    // Nếu có lỗi, trả về JSON lỗi
+    echo json_encode([
+        'success' => false,
+        'message' => $e->getMessage()
+    ]);
 }
-
-// Tính thống kê cho kết quả tìm kiếm
-$total_products = count($products);
-$total_stock = 0;
-$total_sold = 0;
-$low_stock = 0;
-
-foreach ($products as $p) {
-    $total_stock += (int)$p['total_stock'];
-    $total_sold += (int)$p['sold'];
-    if ((int)$p['total_stock'] > 0 && (int)$p['total_stock'] <= 5) {
-        $low_stock++;
-    }
-}
-
-$conn->close();
-
-echo json_encode([
-    'success' => true,
-    'products' => $products,
-    'stats' => [
-        'total_products' => $total_products,
-        'total_stock' => $total_stock,
-        'total_sold' => $total_sold,
-        'low_stock' => $low_stock
-    ]
-]);
-exit;
 ?>
